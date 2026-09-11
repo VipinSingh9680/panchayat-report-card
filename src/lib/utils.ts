@@ -6,9 +6,15 @@ export const getLocalizedField = <T extends object>(
     lang: 'hi' | 'en'
 ): string => {
     const obj = item as Record<string, unknown>;
-    const localizedKey = `${field}_${lang}`;
-    const fallbackKey = `${field}_${lang === 'hi' ? 'en' : 'hi'}`;
-    return (obj[localizedKey] as string) || (obj[fallbackKey] as string) || '';
+    const hiKey = `${field}_hi`;
+    const enKey = `${field}_en`;
+    const hiVal = (obj[hiKey] as string) ?? '';
+    const enVal = (obj[enKey] as string) ?? '';
+
+    if (lang === 'hi') {
+        return hiVal.trim() || enVal.trim() || '';
+    }
+    return enVal.trim() || hiVal.trim() || '';
 };
 
 export const calculateDashboardStats = (
