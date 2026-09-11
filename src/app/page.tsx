@@ -758,82 +758,93 @@ export default function ReportCard(): React.JSX.Element {
             {settings.show_campaign && (
                 <div id='sec-campaign' className='max-w-5xl mx-auto px-6 mb-10 scroll-mt-16'>
                     <FadeIn>
-                        <div className='relative overflow-hidden rounded-3xl shadow-2xl shadow-orange-200/50'>
-                            {/* Gradient background */}
-                            <div className='absolute inset-0 bg-gradient-to-b from-orange-600 via-orange-500 to-amber-500' />
-                            {/* Decorative pattern */}
-                            <div className='absolute inset-0 opacity-[0.07]' style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M20 0L40 20L20 40L0 20Z\' fill=\'%23fff\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
+                        <div className='relative overflow-hidden rounded-3xl shadow-2xl shadow-indigo-300/30'>
+                            {/* Deep gradient background */}
+                            <div className='absolute inset-0 bg-gradient-to-br from-[#1a1a4e] via-[#2d1b69] to-[#1e3a5f]' />
+                            {/* Soft radial glow */}
+                            <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-amber-400/10 rounded-full blur-3xl' />
+                            <div className='absolute bottom-0 right-0 w-[300px] h-[200px] bg-indigo-400/10 rounded-full blur-3xl' />
+                            {/* Subtle star pattern */}
+                            <div className='absolute inset-0 opacity-[0.04]' style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
 
                             <div className='relative'>
-                                {/* Top Banner */}
-                                <div className='bg-white/15 backdrop-blur-sm py-3 text-center border-b border-white/10'>
-                                    <p className='text-white/90 text-xs font-bold tracking-[0.2em] uppercase'>
-                                        {settings.election_year
-                                            ? t(`ग्राम पंचायत चुनाव ${settings.election_year}`, `Gram Panchayat Election ${settings.election_year}`)
-                                            : t('ग्राम पंचायत चुनाव', 'Gram Panchayat Election')}
-                                    </p>
+                                {/* Tricolor stripe top */}
+                                <div className='flex h-1.5'>
+                                    <div className='flex-1 bg-[#FF9933]' />
+                                    <div className='flex-1 bg-white' />
+                                    <div className='flex-1 bg-[#138808]' />
                                 </div>
 
-                                <div className='px-6 py-8 md:px-10'>
-                                    {/* Husband Photo */}
+                                {/* Election year badge */}
+                                <div className='text-center pt-6 pb-2'>
+                                    <div className='inline-flex items-center gap-2 bg-amber-400/15 border border-amber-400/30 px-5 py-1.5 rounded-full'>
+                                        <span className='text-amber-300 text-xs font-bold tracking-[0.15em]'>
+                                            {settings.election_year
+                                                ? `✦ ${t(`ग्राम पंचायत चुनाव ${settings.election_year}`, `Gram Panchayat Election ${settings.election_year}`)} ✦`
+                                                : `✦ ${t('ग्राम पंचायत चुनाव', 'Gram Panchayat Election')} ✦`}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className='px-6 py-6 md:px-10'>
+                                    {/* Husband Photo with golden frame */}
                                     {settings.spouse_photo_url && (
-                                        <div className='flex justify-center mb-6'>
+                                        <div className='flex justify-center mb-5'>
                                             <div className='text-center'>
-                                                <div className='w-32 h-32 md:w-36 md:h-36 rounded-2xl border-3 border-amber-300/80 overflow-hidden shadow-xl ring-4 ring-amber-300/30 mx-auto'>
-                                                    <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} width={144} height={144} className='w-full h-full object-cover' />
+                                                <div className='relative'>
+                                                    <div className='w-32 h-32 md:w-36 md:h-36 rounded-full overflow-hidden shadow-2xl mx-auto ring-[3px] ring-amber-400/60 ring-offset-4 ring-offset-[#1a1a4e]'>
+                                                        <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} width={144} height={144} className='w-full h-full object-cover' />
+                                                    </div>
                                                 </div>
-                                                <p className='text-white font-black text-lg mt-2 leading-tight'>{lf(settings, 'spouse_name')}</p>
-                                                <p className='text-amber-200 text-xs font-semibold'>{t('प्रधान पति', 'Pradhan Pati')}</p>
+                                                <p className='text-amber-200 font-black text-lg mt-3 leading-tight tracking-wide'>{lf(settings, 'spouse_name')}</p>
+                                                <p className='text-indigo-300/70 text-[11px] font-semibold mt-0.5'>{t('प्रधान पति', 'Pradhan Pati')} • {panchayatName}</p>
                                             </div>
                                         </div>
                                     )}
 
-                                    {/* Election Symbol + Slogan */}
+                                    {/* Slogan in elegant card */}
                                     {(settings.election_slogan_hi || settings.election_slogan_en) && (
-                                        <div className='bg-white rounded-2xl px-5 py-4 mb-6 max-w-sm mx-auto text-center shadow-lg'>
-                                            {settings.election_symbol && (
-                                                <span className='text-4xl block mb-2'>{settings.election_symbol}</span>
-                                            )}
-                                            <p className='text-orange-700 text-lg md:text-xl font-black leading-snug'>
-                                                &ldquo;{lf(settings, 'election_slogan')}&rdquo;
-                                            </p>
+                                        <div className='max-w-sm mx-auto mb-5'>
+                                            <div className='bg-gradient-to-r from-amber-400/10 via-amber-400/20 to-amber-400/10 border border-amber-400/20 rounded-2xl px-5 py-4 text-center backdrop-blur-sm'>
+                                                {settings.election_symbol && (
+                                                    <span className='text-4xl block mb-2'>{settings.election_symbol}</span>
+                                                )}
+                                                <p className='text-amber-100 text-lg md:text-xl font-black italic leading-snug'>
+                                                    &ldquo;{lf(settings, 'election_slogan')}&rdquo;
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
 
-                                    {/* Panchayat Name */}
-                                    <p className='text-center text-white/80 text-sm font-semibold mb-5'>
-                                        🏘️ {panchayatName} — {[block, district].filter(Boolean).join(', ')}
-                                    </p>
-
                                     {/* Appeal Message */}
                                     {(settings.campaign_message_hi || settings.campaign_message_en) && (
-                                        <div className='bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-4 mb-6 max-w-md mx-auto'>
-                                            <p className='text-white text-[15px] leading-relaxed text-center'>
+                                        <div className='max-w-md mx-auto mb-5'>
+                                            <p className='text-indigo-100/80 text-[15px] leading-relaxed text-center'>
                                                 {lf(settings, 'campaign_message')}
                                             </p>
                                         </div>
                                     )}
 
-                                    {/* Works Done Badge */}
-                                    <div className='flex justify-center mb-6'>
-                                        <div className='bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 inline-flex items-center gap-2'>
-                                            <span className='text-xl'>✅</span>
-                                            <span className='text-white font-black text-lg'>{stats.totalProjects}+</span>
-                                            <span className='text-white/80 text-sm font-semibold'>{t('विकास कार्य पूर्ण', 'Development Works Completed')}</span>
+                                    {/* Works Done — subtle line */}
+                                    <div className='flex justify-center mb-5'>
+                                        <div className='flex items-center gap-3 text-amber-300/80'>
+                                            <div className='h-px w-8 bg-amber-400/30' />
+                                            <span className='text-sm font-bold'>✅ {stats.totalProjects}+ {t('विकास कार्य पूर्ण', 'Development Works Completed')}</span>
+                                            <div className='h-px w-8 bg-amber-400/30' />
                                         </div>
                                     </div>
 
                                     {/* Promises */}
                                     {settings.promises && settings.promises.length > 0 && (
                                         <div className='max-w-md mx-auto mb-6'>
-                                            <h4 className='text-white font-black text-center text-base mb-4'>
+                                            <h4 className='text-amber-200/90 font-black text-center text-sm tracking-wide mb-3'>
                                                 📋 {t('अगले कार्यकाल का मुख्य ध्यान', 'Key Focus for Next Term')}
                                             </h4>
                                             <div className='grid grid-cols-1 gap-2'>
                                                 {settings.promises.map((p, i) => (
-                                                    <div key={i} className='flex items-center gap-3 bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3'>
+                                                    <div key={i} className='flex items-center gap-3 bg-white/[0.06] border border-white/[0.08] backdrop-blur-sm rounded-xl px-4 py-3 transition-colors'>
                                                         <span className='text-2xl flex-shrink-0'>{p.icon}</span>
-                                                        <p className='text-white text-sm font-bold leading-snug'>
+                                                        <p className='text-indigo-100 text-sm font-semibold leading-snug'>
                                                             {lang === 'hi' ? (p.text_hi || p.text_en) : (p.text_en || p.text_hi)}
                                                         </p>
                                                     </div>
@@ -842,17 +853,26 @@ export default function ReportCard(): React.JSX.Element {
                                         </div>
                                     )}
 
-                                    {/* Vote Appeal */}
+                                    {/* Vote Appeal — elegant CTA */}
                                     <div className='text-center'>
-                                        <div className='inline-block bg-white rounded-2xl px-8 py-4 shadow-xl'>
-                                            <p className='text-orange-600 font-black text-xl md:text-2xl'>
-                                                🙏 {t('आपसे वोट की अपील', 'An Appeal for Your Vote')}
-                                            </p>
-                                            <p className='text-orange-500/70 text-sm font-semibold mt-1'>
-                                                {t('फिर से सेवा का मौका दीजिए', 'Give a chance to serve again')}
-                                            </p>
+                                        <div className='inline-block'>
+                                            <div className='bg-gradient-to-r from-amber-400 to-amber-500 rounded-2xl px-8 py-4 shadow-xl shadow-amber-400/20'>
+                                                <p className='text-[#1a1a4e] font-black text-xl md:text-2xl'>
+                                                    🙏 {t('आपसे वोट की अपील', 'An Appeal for Your Vote')}
+                                                </p>
+                                                <p className='text-[#1a1a4e]/60 text-sm font-bold mt-1'>
+                                                    {t('फिर से सेवा का मौका दीजिए', 'Give a chance to serve again')}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Tricolor stripe bottom */}
+                                <div className='flex h-1.5'>
+                                    <div className='flex-1 bg-[#FF9933]' />
+                                    <div className='flex-1 bg-white' />
+                                    <div className='flex-1 bg-[#138808]' />
                                 </div>
                             </div>
                         </div>
