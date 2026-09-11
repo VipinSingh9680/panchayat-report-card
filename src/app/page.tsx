@@ -755,41 +755,15 @@ export default function ReportCard(): React.JSX.Element {
                         <p className='text-white/80 text-base mb-5'>
                             {t('यह रिपोर्ट कार्ड अपने परिवार और पड़ोसियों को भी दिखाएं', 'Share this report card with family and neighbors')}
                         </p>
-                        <div className='flex flex-col sm:flex-row gap-3 justify-center items-center'>
-                            <button
-                                onClick={() => {
-                                    const url = typeof window !== 'undefined' ? window.location.origin : '';
-                                    const msg = `${panchayatName} — ${t('विकास रिपोर्ट कार्ड', 'Development Report Card')}\n${stats.totalProjects}+ ${t('पूर्ण विकास कार्य', 'completed works')}\n${t('देखें', 'View')}: `;
-                                    window.open(getWhatsAppShareUrl(msg, url), '_blank');
-                                }}
-                                className='bg-white text-emerald-700 font-bold px-8 py-3 rounded-xl text-base active:scale-95 transition-all duration-200 shadow-lg w-full sm:w-auto'>
-                                💬 {t('WhatsApp पर भेजें', 'WhatsApp')}
-                            </button>
-                            <button
-                                onClick={async () => {
-                                    const { shareAsImage } = await import('@/lib/share-utils');
-                                    await shareAsImage({
-                                        panchayatName, block, district, state, repName,
-                                        tenure: settings.tenure_start && settings.tenure_end ? `${settings.tenure_start}–${settings.tenure_end}` : '',
-                                        stats, lang,
-                                    });
-                                }}
-                                className='bg-white/20 border border-white/40 text-white font-bold px-8 py-3 rounded-xl text-base active:scale-95 transition-all duration-200 w-full sm:w-auto'>
-                                📸 {t('फोटो में शेयर करें', 'Share as Image')}
-                            </button>
-                            <button
-                                onClick={async () => {
-                                    const { downloadPdf } = await import('@/lib/share-utils');
-                                    await downloadPdf({
-                                        panchayatName, block, district, state, repName,
-                                        tenure: settings.tenure_start && settings.tenure_end ? `${settings.tenure_start}–${settings.tenure_end}` : '',
-                                        stats, lang,
-                                    });
-                                }}
-                                className='bg-white/20 border border-white/40 text-white font-bold px-8 py-3 rounded-xl text-base active:scale-95 transition-all duration-200 w-full sm:w-auto'>
-                                📄 {t('PDF डाउनलोड करें', 'Download PDF')}
-                            </button>
-                        </div>
+                        <button
+                            onClick={() => {
+                                const url = typeof window !== 'undefined' ? window.location.origin : '';
+                                const msg = `${panchayatName} — ${t('विकास रिपोर्ट कार्ड', 'Development Report Card')}\n${stats.totalProjects}+ ${t('पूर्ण विकास कार्य', 'completed works')}\n${t('देखें', 'View')}: `;
+                                window.open(getWhatsAppShareUrl(msg, url), '_blank');
+                            }}
+                            className='bg-white text-emerald-700 font-bold px-10 py-4 rounded-xl text-lg active:scale-95 transition-all duration-200 shadow-lg'>
+                            💬 {t('WhatsApp पर भेजें', 'Share on WhatsApp')}
+                        </button>
                     </div>
                 </FadeIn>
                 <div className='mt-8 text-center'>
