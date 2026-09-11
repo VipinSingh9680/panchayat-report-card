@@ -23,6 +23,8 @@ interface FormData {
     representative_name_hi: string;
     representative_name_en: string;
     representative_photo_url: string;
+    spouse_name_hi: string;
+    spouse_name_en: string;
     tenure_start: string;
     tenure_end: string;
 }
@@ -40,6 +42,8 @@ function settingsToForm(s: PanchayatSettings): FormData {
         representative_name_hi: s.representative_name_hi ?? '',
         representative_name_en: s.representative_name_en ?? '',
         representative_photo_url: s.representative_photo_url ?? '',
+        spouse_name_hi: s.spouse_name_hi ?? '',
+        spouse_name_en: s.spouse_name_en ?? '',
         tenure_start: s.tenure_start?.toString() ?? '',
         tenure_end: s.tenure_end?.toString() ?? '',
     };
@@ -113,6 +117,8 @@ export default function SettingsForm(): React.JSX.Element {
             representative_name_hi: form.representative_name_hi || null,
             representative_name_en: form.representative_name_en || null,
             representative_photo_url: photoUrl,
+            spouse_name_hi: form.spouse_name_hi || null,
+            spouse_name_en: form.spouse_name_en || null,
             tenure_start: form.tenure_start ? parseInt(form.tenure_start, 10) : null,
             tenure_end: form.tenure_end ? parseInt(form.tenure_end, 10) : null,
             updated_at: new Date().toISOString(),
@@ -313,6 +319,32 @@ export default function SettingsForm(): React.JSX.Element {
                                     </p>
                                 </div>
                             )}
+                        </div>
+                        <div>
+                            <label htmlFor='spouse_name_hi' className='block text-sm font-medium text-slate-700 mb-1'>
+                                Husband / Spouse Name (Hindi)
+                            </label>
+                            <input
+                                id='spouse_name_hi'
+                                name='spouse_name_hi'
+                                value={form.spouse_name_hi}
+                                onChange={handleChange}
+                                className='w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                                placeholder='श्री रामप्रसाद पटेल'
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor='spouse_name_en' className='block text-sm font-medium text-slate-700 mb-1'>
+                                Husband / Spouse Name (English)
+                            </label>
+                            <input
+                                id='spouse_name_en'
+                                name='spouse_name_en'
+                                value={form.spouse_name_en}
+                                onChange={handleChange}
+                                className='w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                                placeholder='Shri Ramprasad Patel'
+                            />
                         </div>
                         <div>
                             <label htmlFor='tenure_start' className='block text-sm font-medium text-slate-700 mb-1'>
