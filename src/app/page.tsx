@@ -775,27 +775,18 @@ export default function ReportCard(): React.JSX.Element {
                                 </div>
 
                                 <div className='px-6 py-8 md:px-10'>
-                                    {/* Photos: Pradhan + Husband side by side */}
-                                    <div className='flex justify-center items-end gap-4 mb-6'>
-                                        {settings.representative_photo_url && (
+                                    {/* Husband Photo */}
+                                    {settings.spouse_photo_url && (
+                                        <div className='flex justify-center mb-6'>
                                             <div className='text-center'>
-                                                <div className='w-24 h-24 md:w-28 md:h-28 rounded-2xl border-3 border-white/60 overflow-hidden shadow-lg mx-auto'>
-                                                    <Image src={settings.representative_photo_url} alt={repName} width={112} height={112} className='w-full h-full object-cover' />
+                                                <div className='w-32 h-32 md:w-36 md:h-36 rounded-2xl border-3 border-amber-300/80 overflow-hidden shadow-xl ring-4 ring-amber-300/30 mx-auto'>
+                                                    <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} width={144} height={144} className='w-full h-full object-cover' />
                                                 </div>
-                                                <p className='text-white font-bold text-sm mt-2 leading-tight'>{repName}</p>
-                                                <p className='text-amber-200 text-[10px] font-semibold'>{t('ग्राम प्रधान', 'Gram Pradhan')}</p>
+                                                <p className='text-white font-black text-lg mt-2 leading-tight'>{lf(settings, 'spouse_name')}</p>
+                                                <p className='text-amber-200 text-xs font-semibold'>{t('प्रधान पति', 'Pradhan Pati')}</p>
                                             </div>
-                                        )}
-                                        {settings.spouse_photo_url && (
-                                            <div className='text-center'>
-                                                <div className='w-28 h-28 md:w-32 md:h-32 rounded-2xl border-3 border-amber-300/80 overflow-hidden shadow-xl ring-4 ring-amber-300/30 mx-auto'>
-                                                    <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} width={128} height={128} className='w-full h-full object-cover' />
-                                                </div>
-                                                <p className='text-white font-black text-base mt-2 leading-tight'>{lf(settings, 'spouse_name')}</p>
-                                                <p className='text-amber-200 text-[10px] font-semibold'>{t('प्रधान पति', 'Pradhan Pati')}</p>
-                                            </div>
-                                        )}
-                                    </div>
+                                        </div>
+                                    )}
 
                                     {/* Election Symbol + Slogan */}
                                     {(settings.election_slogan_hi || settings.election_slogan_en) && (
