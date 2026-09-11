@@ -14,6 +14,13 @@ import {
     sampleWelfareStats,
 } from './sample-data';
 import { isSupabaseConfigured, fetchAllData } from './supabase-data';
+import type { AllData } from './supabase-data';
+
+const fetchCachedData = async (): Promise<AllData> => {
+    const res = await fetch('/api/public-data', { next: { revalidate: 300 } });
+    if (!res.ok) throw new Error('Cache API failed');
+    return res.json() as Promise<AllData>;
+};
 
 interface AppState {
     settings: PanchayatSettings;
@@ -65,7 +72,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 
         set({ isLoading: true });
         try {
-            const data = await fetchAllData();
+            const isAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+            const data = isAdmin ? await fetchAllData() : await fetchCachedData();
             set({
                 settings: data.settings ?? sampleSettings,
                 categories: data.categories,
@@ -77,7 +85,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             });
         } catch (error) {
             console.error(
-                'Failed to load data from Supabase, using sample data:',
+                'Failed to load data, using sample data:',
                 error,
             );
             set({ dataLoaded: true, isLoading: false });
