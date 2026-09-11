@@ -229,6 +229,15 @@ export default function ReportCard(): React.JSX.Element {
                 <div className='absolute inset-0 bg-gradient-to-b from-emerald-900/60 via-teal-800/50 to-emerald-900/70' />
 
                 <div className='relative max-w-5xl mx-auto px-6 pt-14 pb-24 text-center text-white'>
+                    {/* Tenure period at top */}
+                    {settings.tenure_start && settings.tenure_end && (
+                        <FadeIn>
+                            <div className='inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-4'>
+                                <span className='text-emerald-200 text-xs font-semibold'>{t('कार्यकाल', 'Tenure')}</span>
+                                <span className='text-white text-xs font-bold'>{settings.tenure_start} — {settings.tenure_end}</span>
+                            </div>
+                        </FadeIn>
+                    )}
                     <FadeIn>
                         <p className='text-emerald-200 text-xs font-semibold tracking-[0.25em] uppercase mb-3'>{t('ग्राम पंचायत', 'Gram Panchayat')}</p>
                     </FadeIn>
@@ -239,31 +248,36 @@ export default function ReportCard(): React.JSX.Element {
                         <p className='text-white/60 text-base'>{[block, district, state].filter(Boolean).join(' · ')}</p>
                     </FadeIn>
                     <FadeIn delay={250}>
-                        <div className='mt-8 inline-grid grid-cols-2 gap-6'>
+                        <div className='mt-8 inline-grid grid-cols-2 gap-5'>
                             {/* Gram Pradhan */}
-                            <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-8 py-6 text-center flex flex-col items-center justify-center'>
+                            <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden text-center w-40 md:w-48'>
                                 {settings.representative_photo_url ? (
-                                    <Image src={settings.representative_photo_url} alt={repName} width={140} height={140} className='rounded-2xl border-4 border-white/30 object-cover w-32 h-36 md:w-36 md:h-40 mb-3 shadow-lg' />
+                                    <div className='relative w-full aspect-[3/4]'>
+                                        <Image src={settings.representative_photo_url} alt={repName} fill className='object-cover' sizes='200px' />
+                                    </div>
                                 ) : (
-                                    <div className='w-32 h-36 md:w-36 md:h-40 rounded-2xl bg-white/20 flex items-center justify-center text-5xl mb-3'>👤</div>
+                                    <div className='w-full aspect-[3/4] bg-white/10 flex items-center justify-center text-5xl'>👤</div>
                                 )}
-                                <p className='text-white/50 text-xs'>{t('ग्राम प्रधान', 'Gram Pradhan')}</p>
-                                <p className='text-lg font-bold'>{repName}</p>
-                                {settings.tenure_start && settings.tenure_end && (
-                                    <p className='text-white/40 text-xs mt-0.5'>{settings.tenure_start} — {settings.tenure_end}</p>
-                                )}
+                                <div className='px-3 py-3'>
+                                    <p className='text-emerald-200 text-[10px] font-semibold uppercase tracking-wider'>{t('ग्राम प्रधान', 'Gram Pradhan')}</p>
+                                    <p className='text-white text-sm md:text-base font-bold mt-0.5 leading-tight'>{repName}</p>
+                                </div>
                             </div>
 
-                            {/* Husband */}
+                            {/* Husband / Pati */}
                             {(settings.spouse_name_hi || settings.spouse_name_en) && (
-                                <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-8 py-6 text-center flex flex-col items-center justify-center'>
+                                <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden text-center w-40 md:w-48'>
                                     {settings.spouse_photo_url ? (
-                                        <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} width={140} height={140} className='rounded-2xl border-4 border-white/30 object-cover w-32 h-36 md:w-36 md:h-40 mb-3 shadow-lg' />
+                                        <div className='relative w-full aspect-[3/4]'>
+                                            <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} fill className='object-cover' sizes='200px' />
+                                        </div>
                                     ) : (
-                                        <div className='w-32 h-36 md:w-36 md:h-40 rounded-2xl bg-white/20 flex items-center justify-center text-5xl mb-3'>👤</div>
+                                        <div className='w-full aspect-[3/4] bg-white/10 flex items-center justify-center text-5xl'>👤</div>
                                     )}
-                                    <p className='text-white/50 text-xs'>{t('पति', 'Husband')}</p>
-                                    <p className='text-lg font-bold'>{lf(settings, 'spouse_name')}</p>
+                                    <div className='px-3 py-3'>
+                                        <p className='text-emerald-200 text-[10px] font-semibold uppercase tracking-wider'>{t('पति', 'Husband')}</p>
+                                        <p className='text-white text-sm md:text-base font-bold mt-0.5 leading-tight'>{lf(settings, 'spouse_name')}</p>
+                                    </div>
                                 </div>
                             )}
                         </div>
