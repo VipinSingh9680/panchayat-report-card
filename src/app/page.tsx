@@ -827,7 +827,7 @@ export default function ReportCard(): React.JSX.Element {
                                     {settings.promises && settings.promises.length > 0 && (
                                         <div className='max-w-md mx-auto mb-6'>
                                             <h4 className='text-white font-black text-center text-base mb-4'>
-                                                📋 {t('अगले कार्यकाल में ये करेंगे', 'We Will Do This in Next Term')}
+                                                📋 {t('अगले कार्यकाल में फोकस करेंगे', 'We Will Focus in Next Term')}
                                             </h4>
                                             <div className='grid grid-cols-1 gap-2'>
                                                 {settings.promises.map((p, i) => (
