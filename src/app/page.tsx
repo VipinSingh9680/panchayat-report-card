@@ -134,13 +134,13 @@ export default function ReportCard(): React.JSX.Element {
                         <p className='text-white/60 text-base'>{[block, district, state].filter(Boolean).join(' · ')}</p>
                     </FadeIn>
                     <FadeIn delay={250}>
-                        <div className='mt-8 inline-grid grid-cols-2 gap-4'>
+                        <div className='mt-8 inline-grid grid-cols-2 gap-6'>
                             {/* Gram Pradhan */}
-                            <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-6 py-5 text-center flex flex-col items-center justify-center'>
+                            <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-8 py-6 text-center flex flex-col items-center justify-center'>
                                 {settings.representative_photo_url ? (
-                                    <Image src={settings.representative_photo_url} alt={repName} width={80} height={80} className='rounded-full border-3 border-white/30 object-cover w-20 h-20 mb-3' />
+                                    <Image src={settings.representative_photo_url} alt={repName} width={120} height={120} className='rounded-full border-4 border-white/30 object-cover w-28 h-28 md:w-32 md:h-32 mb-3' />
                                 ) : (
-                                    <div className='w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-3xl mb-3'>👤</div>
+                                    <div className='w-28 h-28 md:w-32 md:h-32 rounded-full bg-white/20 flex items-center justify-center text-5xl mb-3'>👤</div>
                                 )}
                                 <p className='text-white/50 text-xs'>{t('ग्राम प्रधान', 'Gram Pradhan')}</p>
                                 <p className='text-lg font-bold'>{repName}</p>
@@ -151,11 +151,11 @@ export default function ReportCard(): React.JSX.Element {
 
                             {/* Husband */}
                             {(settings.spouse_name_hi || settings.spouse_name_en) && (
-                                <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-6 py-5 text-center flex flex-col items-center justify-center'>
+                                <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-8 py-6 text-center flex flex-col items-center justify-center'>
                                     {settings.spouse_photo_url ? (
-                                        <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} width={80} height={80} className='rounded-full border-3 border-white/30 object-cover w-20 h-20 mb-3' />
+                                        <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} width={120} height={120} className='rounded-full border-4 border-white/30 object-cover w-28 h-28 md:w-32 md:h-32 mb-3' />
                                     ) : (
-                                        <div className='w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-3xl mb-3'>👤</div>
+                                        <div className='w-28 h-28 md:w-32 md:h-32 rounded-full bg-white/20 flex items-center justify-center text-5xl mb-3'>👤</div>
                                     )}
                                     <p className='text-white/50 text-xs'>{t('पति', 'Husband')}</p>
                                     <p className='text-lg font-bold'>{lf(settings, 'spouse_name')}</p>
