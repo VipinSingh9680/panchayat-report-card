@@ -758,89 +758,110 @@ export default function ReportCard(): React.JSX.Element {
             {settings.show_campaign && (
                 <div id='sec-campaign' className='max-w-5xl mx-auto px-6 mb-10 scroll-mt-16'>
                     <FadeIn>
-                        <div className='relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 shadow-2xl shadow-orange-200/50'>
-                            <div className='absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2' />
-                            <div className='absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2' />
+                        <div className='relative overflow-hidden rounded-3xl shadow-2xl shadow-orange-200/50'>
+                            {/* Gradient background */}
+                            <div className='absolute inset-0 bg-gradient-to-b from-orange-600 via-orange-500 to-amber-500' />
+                            {/* Decorative pattern */}
+                            <div className='absolute inset-0 opacity-[0.07]' style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M20 0L40 20L20 40L0 20Z\' fill=\'%23fff\'/%3E%3C/svg%3E")', backgroundSize: '40px 40px' }} />
 
-                            <div className='relative p-6 md:p-10 text-center'>
-                                {/* Election Year Badge */}
-                                {settings.election_year && (
-                                    <div className='inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm px-5 py-2 rounded-full mb-5'>
-                                        <span className='text-2xl'>🗳️</span>
-                                        <span className='text-white font-black text-lg'>
-                                            {t(`चुनाव ${settings.election_year}`, `Election ${settings.election_year}`)}
-                                        </span>
+                            <div className='relative'>
+                                {/* Top Banner */}
+                                <div className='bg-white/15 backdrop-blur-sm py-3 text-center border-b border-white/10'>
+                                    <p className='text-white/90 text-xs font-bold tracking-[0.2em] uppercase'>
+                                        {settings.election_year
+                                            ? t(`ग्राम पंचायत चुनाव ${settings.election_year}`, `Gram Panchayat Election ${settings.election_year}`)
+                                            : t('ग्राम पंचायत चुनाव', 'Gram Panchayat Election')}
+                                    </p>
+                                </div>
+
+                                <div className='px-6 py-8 md:px-10'>
+                                    {/* Photos: Pradhan + Husband side by side */}
+                                    <div className='flex justify-center items-end gap-4 mb-6'>
+                                        {settings.representative_photo_url && (
+                                            <div className='text-center'>
+                                                <div className='w-24 h-24 md:w-28 md:h-28 rounded-2xl border-3 border-white/60 overflow-hidden shadow-lg mx-auto'>
+                                                    <Image src={settings.representative_photo_url} alt={repName} width={112} height={112} className='w-full h-full object-cover' />
+                                                </div>
+                                                <p className='text-white font-bold text-sm mt-2 leading-tight'>{repName}</p>
+                                                <p className='text-amber-200 text-[10px] font-semibold'>{t('ग्राम प्रधान', 'Gram Pradhan')}</p>
+                                            </div>
+                                        )}
+                                        {settings.spouse_photo_url && (
+                                            <div className='text-center'>
+                                                <div className='w-28 h-28 md:w-32 md:h-32 rounded-2xl border-3 border-amber-300/80 overflow-hidden shadow-xl ring-4 ring-amber-300/30 mx-auto'>
+                                                    <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} width={128} height={128} className='w-full h-full object-cover' />
+                                                </div>
+                                                <p className='text-white font-black text-base mt-2 leading-tight'>{lf(settings, 'spouse_name')}</p>
+                                                <p className='text-amber-200 text-[10px] font-semibold'>{t('प्रधान पति', 'Pradhan Pati')}</p>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
 
-                                {/* Pradhan Photo + Name */}
-                                <div className='flex flex-col items-center mb-5'>
-                                    {settings.representative_photo_url && (
-                                        <div className='w-28 h-28 rounded-full border-4 border-white/50 overflow-hidden shadow-lg mb-3'>
-                                            <Image src={settings.representative_photo_url} alt={repName} width={112} height={112} className='w-full h-full object-cover' />
+                                    {/* Election Symbol + Slogan */}
+                                    {(settings.election_slogan_hi || settings.election_slogan_en) && (
+                                        <div className='bg-white rounded-2xl px-5 py-4 mb-6 max-w-sm mx-auto text-center shadow-lg'>
+                                            {settings.election_symbol && (
+                                                <span className='text-4xl block mb-2'>{settings.election_symbol}</span>
+                                            )}
+                                            <p className='text-orange-700 text-lg md:text-xl font-black leading-snug'>
+                                                &ldquo;{lf(settings, 'election_slogan')}&rdquo;
+                                            </p>
                                         </div>
                                     )}
-                                    <h3 className='text-white text-2xl md:text-3xl font-black drop-shadow-md'>
-                                        {repName}
-                                    </h3>
-                                    <p className='text-white/80 text-sm mt-1'>
-                                        {t('ग्राम प्रधान', 'Gram Pradhan')} — {panchayatName}
+
+                                    {/* Panchayat Name */}
+                                    <p className='text-center text-white/80 text-sm font-semibold mb-5'>
+                                        🏘️ {panchayatName} — {[block, district].filter(Boolean).join(', ')}
                                     </p>
-                                </div>
 
-                                {/* Slogan */}
-                                {(settings.election_slogan_hi || settings.election_slogan_en) && (
-                                    <div className='bg-white/15 backdrop-blur-sm rounded-2xl px-6 py-4 mb-6 max-w-md mx-auto'>
-                                        <p className='text-white text-xl md:text-2xl font-black italic leading-snug'>
-                                            {settings.election_symbol && <span className='text-3xl mr-2'>{settings.election_symbol}</span>}
-                                            &ldquo;{lf(settings, 'election_slogan')}&rdquo;
-                                        </p>
-                                    </div>
-                                )}
+                                    {/* Appeal Message */}
+                                    {(settings.campaign_message_hi || settings.campaign_message_en) && (
+                                        <div className='bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-4 mb-6 max-w-md mx-auto'>
+                                            <p className='text-white text-[15px] leading-relaxed text-center'>
+                                                {lf(settings, 'campaign_message')}
+                                            </p>
+                                        </div>
+                                    )}
 
-                                {/* Appeal Message */}
-                                {(settings.campaign_message_hi || settings.campaign_message_en) && (
-                                    <p className='text-white/90 text-base md:text-lg leading-relaxed max-w-lg mx-auto mb-6'>
-                                        {lf(settings, 'campaign_message')}
-                                    </p>
-                                )}
-
-                                {/* Achievement Summary */}
-                                <div className='flex justify-center gap-4 mb-6'>
-                                    <div className='bg-white/20 backdrop-blur-sm rounded-xl px-5 py-3 text-center'>
-                                        <p className='text-white text-2xl font-black'>{stats.totalProjects}+</p>
-                                        <p className='text-white/80 text-xs'>{t('पूर्ण कार्य', 'Works Done')}</p>
-                                    </div>
-                                    <div className='bg-white/20 backdrop-blur-sm rounded-xl px-5 py-3 text-center'>
-                                        <p className='text-white text-2xl font-black'>₹{stats.totalCostLakhs.toFixed(1)}L</p>
-                                        <p className='text-white/80 text-xs'>{t('लाख व्यय', 'Lakhs Spent')}</p>
-                                    </div>
-                                </div>
-
-                                {/* Promises */}
-                                {settings.promises && settings.promises.length > 0 && (
-                                    <div className='bg-white/10 backdrop-blur-sm rounded-2xl p-5 text-left max-w-md mx-auto'>
-                                        <h4 className='text-white font-black text-center text-lg mb-4'>
-                                            📋 {t('अगले कार्यकाल के वादे', 'Promises for Next Term')}
-                                        </h4>
-                                        <div className='space-y-3'>
-                                            {settings.promises.map((p, i) => (
-                                                <div key={i} className='flex items-start gap-3 bg-white/10 rounded-xl px-4 py-3'>
-                                                    <span className='text-2xl'>{p.icon}</span>
-                                                    <p className='text-white text-sm font-semibold leading-snug'>
-                                                        {lang === 'hi' ? (p.text_hi || p.text_en) : (p.text_en || p.text_hi)}
-                                                    </p>
-                                                </div>
-                                            ))}
+                                    {/* Works Done Badge */}
+                                    <div className='flex justify-center mb-6'>
+                                        <div className='bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 inline-flex items-center gap-2'>
+                                            <span className='text-xl'>✅</span>
+                                            <span className='text-white font-black text-lg'>{stats.totalProjects}+</span>
+                                            <span className='text-white/80 text-sm font-semibold'>{t('विकास कार्य पूर्ण', 'Development Works Completed')}</span>
                                         </div>
                                     </div>
-                                )}
 
-                                {/* Vote Appeal CTA */}
-                                <div className='mt-6'>
-                                    <p className='text-white font-black text-xl md:text-2xl'>
-                                        🙏 {t('फिर से सेवा का मौका दीजिए', 'Give a chance to serve again')}
-                                    </p>
+                                    {/* Promises */}
+                                    {settings.promises && settings.promises.length > 0 && (
+                                        <div className='max-w-md mx-auto mb-6'>
+                                            <h4 className='text-white font-black text-center text-base mb-4'>
+                                                📋 {t('अगले कार्यकाल में ये करेंगे', 'We Will Do This in Next Term')}
+                                            </h4>
+                                            <div className='grid grid-cols-1 gap-2'>
+                                                {settings.promises.map((p, i) => (
+                                                    <div key={i} className='flex items-center gap-3 bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3'>
+                                                        <span className='text-2xl flex-shrink-0'>{p.icon}</span>
+                                                        <p className='text-white text-sm font-bold leading-snug'>
+                                                            {lang === 'hi' ? (p.text_hi || p.text_en) : (p.text_en || p.text_hi)}
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Vote Appeal */}
+                                    <div className='text-center'>
+                                        <div className='inline-block bg-white rounded-2xl px-8 py-4 shadow-xl'>
+                                            <p className='text-orange-600 font-black text-xl md:text-2xl'>
+                                                🙏 {t('आपसे वोट की अपील', 'An Appeal for Your Vote')}
+                                            </p>
+                                            <p className='text-orange-500/70 text-sm font-semibold mt-1'>
+                                                {t('फिर से सेवा का मौका दीजिए', 'Give a chance to serve again')}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
