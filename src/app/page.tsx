@@ -171,6 +171,8 @@ export default function ReportCard(): React.JSX.Element {
     useSupabaseLoader();
     const [lang, setLang] = useState<Language>('hi');
     const [galleryProject, setGalleryProject] = useState<Project | null>(null);
+    const [activeFY, setActiveFY] = useState<string>('__all__');
+    const [openFYs, setOpenFYs] = useState<Set<string>>(new Set());
     const { settings, projects, categories, otherWorks, welfareStats, isLoading } = useAppStore();
 
     const published = projects.filter((p) => p.status === 'published');
@@ -223,6 +225,31 @@ export default function ReportCard(): React.JSX.Element {
         );
         return sorted;
     }, [published]);
+
+    const fyKeys = useMemo(() => Array.from(projectsByFY.keys()), [projectsByFY]);
+
+    const toggleFY = (fy: string): void => {
+        setOpenFYs((prev) => {
+            const next = new Set(prev);
+            if (next.has(fy)) next.delete(fy);
+            else next.add(fy);
+            return next;
+        });
+    };
+
+    const handleTabClick = (fy: string): void => {
+        setActiveFY(fy);
+        if (fy !== '__all__') {
+            setOpenFYs(new Set([fy]));
+        } else {
+            setOpenFYs(new Set());
+        }
+    };
+
+    const visibleFYs = useMemo(() => {
+        if (activeFY === '__all__') return fyKeys;
+        return fyKeys.filter((k) => k === activeFY);
+    }, [activeFY, fyKeys]);
 
     return (
         <div className='min-h-screen bg-[#f0f4f8]' style={{ fontFamily: "'Noto Sans Devanagari', 'Inter', sans-serif" }}>
@@ -378,27 +405,78 @@ export default function ReportCard(): React.JSX.Element {
                 </FadeIn>
             </div>
 
-            {/* ════════ PROJECTS — Year-wise, 2 columns, ALL details visible ════════ */}
+            {/* ════════ PROJECTS — Sticky FY tabs + Accordion ════════ */}
             <div className='max-w-5xl mx-auto px-6 mb-10'>
                 <FadeIn>
-                    <h2 className='text-3xl font-black text-slate-900 text-center mb-8'>
+                    <h2 className='text-3xl font-black text-slate-900 text-center mb-6'>
                         🏗️ {t('पूर्ण विकास कार्य', 'Completed Development Works')}
                     </h2>
                 </FadeIn>
 
-                {Array.from(projectsByFY.entries()).map(([fy, fyProjects]) => (
-                    <div key={fy} className='mb-10'>
-                        <FadeIn>
-                            <div className='flex items-center gap-4 mb-5'>
-                                <div className='bg-slate-800 text-white font-black text-xl px-5 py-2 rounded-xl shadow'>
-                                    📅 {fy === '__other__' ? t('अन्य', 'Other') : fy}
-                                </div>
-                                <div className='flex-1 h-px bg-slate-300' />
-                                <span className='text-slate-400 text-base font-bold'>{fyProjects.length} {t('कार्य', 'works')}</span>
-                            </div>
-                        </FadeIn>
+                {/* Sticky FY Tabs */}
+                <div className='sticky top-0 z-30 bg-[#f0f4f8] pt-2 pb-3 -mx-1'>
+                    <div className='flex gap-2 overflow-x-auto pb-1 px-1 scrollbar-hide'>
+                        <button
+                            onClick={() => handleTabClick('__all__')}
+                            className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                                activeFY === '__all__'
+                                    ? 'bg-slate-800 text-white shadow-lg'
+                                    : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-400'
+                            }`}>
+                            {t('सभी', 'All')} ({published.length})
+                        </button>
+                        {fyKeys.map((fy) => {
+                            const count = projectsByFY.get(fy)?.length ?? 0;
+                            const label = fy === '__other__' ? t('अन्य', 'Other') : fy;
+                            return (
+                                <button
+                                    key={fy}
+                                    onClick={() => handleTabClick(fy)}
+                                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                                        activeFY === fy
+                                            ? 'bg-emerald-600 text-white shadow-lg'
+                                            : 'bg-white text-slate-600 border border-slate-200 hover:border-emerald-400'
+                                    }`}>
+                                    📅 {label} ({count})
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
 
-                        <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+                {/* Accordion Sections */}
+                {visibleFYs.map((fy) => {
+                    const fyProjects = projectsByFY.get(fy) ?? [];
+                    const isOpen = activeFY !== '__all__' || openFYs.has(fy);
+                    const label = fy === '__other__' ? t('अन्य', 'Other') : fy;
+
+                    return (
+                        <div key={fy} className='mb-4'>
+                            {/* Accordion Header */}
+                            <button
+                                onClick={() => activeFY === '__all__' ? toggleFY(fy) : undefined}
+                                className={`w-full flex items-center gap-4 px-5 py-3 rounded-2xl transition-all ${
+                                    isOpen
+                                        ? 'bg-slate-800 text-white shadow-lg'
+                                        : 'bg-white text-slate-800 border border-slate-200 hover:border-slate-400 shadow-sm'
+                                }`}>
+                                <span className={`transition-transform duration-300 ${isOpen ? 'rotate-90' : ''}`}>
+                                    ▶
+                                </span>
+                                <span className='font-black text-lg'>📅 {label}</span>
+                                <div className='flex-1' />
+                                <span className={`text-sm font-bold px-3 py-0.5 rounded-full ${
+                                    isOpen ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-700'
+                                }`}>
+                                    {fyProjects.length} {t('कार्य', 'works')}
+                                </span>
+                            </button>
+
+                            {/* Accordion Content */}
+                            <div className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                                isOpen ? 'max-h-[5000px] opacity-100 mt-4' : 'max-h-0 opacity-0'
+                            }`}>
+                                <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
                             {fyProjects.map((project, i) => {
                                 const title = lf(project, 'title');
                                 const desc = lf(project, 'description');
@@ -509,8 +587,10 @@ export default function ReportCard(): React.JSX.Element {
                                 );
                             })}
                         </div>
-                    </div>
-                ))}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
 
             {/* ════════ OTHER ACHIEVEMENTS ════════ */}
