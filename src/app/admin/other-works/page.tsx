@@ -19,6 +19,8 @@ export default function OtherWorksPage(): React.JSX.Element {
     const { addOtherWork, updateOtherWork, setOtherWorks } = useAppStore();
     const [view, setView] = useState<ViewMode>('list');
     const [editingWork, setEditingWork] = useState<OtherWork | undefined>(undefined);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleEdit = (work: OtherWork): void => {
         setEditingWork(work);
@@ -33,9 +35,12 @@ export default function OtherWorksPage(): React.JSX.Element {
         }
 
         if (isSupabaseConfigured()) {
+            setSaving(true);
+            setError(null);
             try {
-                const uploadedImages = await Promise.all(
-                    (work.images ?? []).map(async (img) => {
+                const uploadedImages: typeof work.images = [];
+                for (const img of work.images ?? []) {
+                    try {
                         if (img.image_url.startsWith('blob:')) {
                             const resp = await fetch(img.image_url);
                             const blob = await resp.blob();
@@ -45,18 +50,26 @@ export default function OtherWorksPage(): React.JSX.Element {
                                 { type: blob.type },
                             );
                             const url = await uploadImage(file, 'other-works');
-                            return { ...img, image_url: url };
+                            uploadedImages.push({ ...img, image_url: url });
+                        } else {
+                            uploadedImages.push(img);
                         }
-                        return img;
-                    }),
-                );
+                    } catch (uploadErr) {
+                        console.error('Image upload failed, skipping:', uploadErr);
+                    }
+                }
+
                 const { images: _, ...workData } = work;
                 await dbSaveOtherWork(workData, uploadedImages);
 
                 const freshWorks = await fetchOtherWorks();
                 setOtherWorks(freshWorks);
             } catch (err) {
-                console.error('Failed to save other work to Supabase:', err);
+                const msg = err instanceof Error ? err.message : 'Unknown error';
+                console.error('Failed to save other work to Supabase:', msg);
+                setError(`Save failed: ${msg}`);
+            } finally {
+                setSaving(false);
             }
         }
 
@@ -101,6 +114,17 @@ export default function OtherWorksPage(): React.JSX.Element {
                     Add New Work
                 </button>
             </div>
+            {saving && (
+                <div className='bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm'>
+                    ⏳ Saving work and uploading photos...
+                </div>
+            )}
+            {error && (
+                <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center justify-between'>
+                    <span>❌ {error}</span>
+                    <button onClick={() => setError(null)} className='text-red-500 hover:text-red-700 font-bold'>✕</button>
+                </div>
+            )}
             <OtherWorkList onEdit={handleEdit} />
         </div>
     );

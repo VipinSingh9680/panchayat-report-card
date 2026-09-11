@@ -113,6 +113,7 @@ export default function SettingsForm(): React.JSX.Element {
     const [form, setForm] = useState<FormData>(settingsToForm(settings));
     const [saved, setSaved] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [spousePhotoFile, setSpousePhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(
@@ -174,17 +175,24 @@ export default function SettingsForm(): React.JSX.Element {
 
         let repPhotoUrl = form.representative_photo_url || null;
         let spousePhotoUrl = form.spouse_photo_url || null;
+        let uploadError = '';
 
         if (isSupabaseConfigured()) {
-            try {
-                if (photoFile) {
+            if (photoFile) {
+                try {
                     repPhotoUrl = await uploadImage(photoFile, 'settings');
+                } catch (err) {
+                    uploadError += `Pradhan photo upload failed. `;
+                    console.error('Pradhan photo upload failed:', err);
                 }
-                if (spousePhotoFile) {
+            }
+            if (spousePhotoFile) {
+                try {
                     spousePhotoUrl = await uploadImage(spousePhotoFile, 'settings');
+                } catch (err) {
+                    uploadError += `Spouse photo upload failed. `;
+                    console.error('Spouse photo upload failed:', err);
                 }
-            } catch (err) {
-                console.error('Failed to upload photo:', err);
             }
         }
 
@@ -214,15 +222,23 @@ export default function SettingsForm(): React.JSX.Element {
             try {
                 await dbSaveSettings(updated);
             } catch (err) {
-                console.error('Failed to save settings to Supabase:', err);
+                const msg = err instanceof Error ? err.message : 'Unknown error';
+                uploadError += `Settings save failed: ${msg}`;
+                console.error('Failed to save settings to Supabase:', msg);
             }
         }
 
         setSaving(false);
-        setSaved(true);
+        if (uploadError) {
+            setSaveError(uploadError);
+            setTimeout(() => setSaveError(null), 8000);
+        } else {
+            setSaveError(null);
+            setSaved(true);
+            setTimeout(() => setSaved(false), 3000);
+        }
         setPhotoFile(null);
         setSpousePhotoFile(null);
-        setTimeout(() => setSaved(false), 3000);
     };
 
     return (
@@ -373,6 +389,11 @@ export default function SettingsForm(): React.JSX.Element {
                 </div>
 
                 {/* Save */}
+                {saveError && (
+                    <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm'>
+                        ❌ {saveError}
+                    </div>
+                )}
                 <div className='flex items-center justify-end gap-3'>
                     {saved && (
                         <span className='text-sm text-green-600 font-medium'>
