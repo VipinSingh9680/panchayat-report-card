@@ -259,7 +259,7 @@ export default function ReportCard(): React.JSX.Element {
                                     <div className='w-full aspect-[3/4] bg-white/10 flex items-center justify-center text-5xl'>👤</div>
                                 )}
                                 <div className='px-3 py-3'>
-                                    <p className='text-emerald-200 text-[10px] font-semibold uppercase tracking-wider'>{t('ग्राम प्रधान', 'Gram Pradhan')}</p>
+                                    <p className='text-emerald-300 text-xs font-semibold tracking-wide'>{t('ग्राम प्रधान', 'Gram Pradhan')}</p>
                                     <p className='text-white text-sm md:text-base font-bold mt-0.5 leading-tight'>{repName}</p>
                                 </div>
                             </div>
@@ -275,7 +275,7 @@ export default function ReportCard(): React.JSX.Element {
                                         <div className='w-full aspect-[3/4] bg-white/10 flex items-center justify-center text-5xl'>👤</div>
                                     )}
                                     <div className='px-3 py-3'>
-                                        <p className='text-emerald-200 text-[10px] font-semibold uppercase tracking-wider'>{t('पति', 'Husband')}</p>
+                                        <p className='text-emerald-300 text-xs font-semibold tracking-wide'>{t('पति', 'Husband')}</p>
                                         <p className='text-white text-sm md:text-base font-bold mt-0.5 leading-tight'>{lf(settings, 'spouse_name')}</p>
                                     </div>
                                 </div>
