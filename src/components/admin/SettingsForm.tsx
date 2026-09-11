@@ -130,12 +130,16 @@ export default function SettingsForm(): React.JSX.Element {
     const [saveError, setSaveError] = useState<string | null>(null);
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [spousePhotoFile, setSpousePhotoFile] = useState<File | null>(null);
+    const [villagePhotoFile, setVillagePhotoFile] = useState<File | null>(null);
     const [promises, setPromises] = useState<PromiseItem[]>(settings.promises ?? []);
     const [photoPreview, setPhotoPreview] = useState<string | null>(
         settings.representative_photo_url,
     );
     const [spousePhotoPreview, setSpousePhotoPreview] = useState<string | null>(
         settings.spouse_photo_url,
+    );
+    const [villagePhotoPreview, setVillagePhotoPreview] = useState<string | null>(
+        settings.village_photo_url,
     );
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -184,12 +188,31 @@ export default function SettingsForm(): React.JSX.Element {
         setSaved(false);
     };
 
+    const onVillagePhotoDrop = useCallback((accepted: File[]) => {
+        const file = accepted[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        setVillagePhotoPreview(url);
+        setVillagePhotoFile(file);
+        setSaved(false);
+    }, []);
+
+    const removeVillagePhoto = (): void => {
+        if (villagePhotoPreview && villagePhotoPreview.startsWith('blob:')) {
+            URL.revokeObjectURL(villagePhotoPreview);
+        }
+        setVillagePhotoPreview(null);
+        setVillagePhotoFile(null);
+        setSaved(false);
+    };
+
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         setSaving(true);
 
         let repPhotoUrl = form.representative_photo_url || null;
         let spousePhotoUrl = form.spouse_photo_url || null;
+        let villagePhotoUrl = settings.village_photo_url || null;
         let uploadError = '';
 
         if (isSupabaseConfigured()) {
@@ -207,6 +230,14 @@ export default function SettingsForm(): React.JSX.Element {
                 } catch (err) {
                     uploadError += `Spouse photo upload failed. `;
                     console.error('Spouse photo upload failed:', err);
+                }
+            }
+            if (villagePhotoFile) {
+                try {
+                    villagePhotoUrl = await uploadImage(villagePhotoFile, 'settings');
+                } catch (err) {
+                    uploadError += `Village photo upload failed. `;
+                    console.error('Village photo upload failed:', err);
                 }
             }
         }
@@ -227,6 +258,7 @@ export default function SettingsForm(): React.JSX.Element {
             spouse_name_hi: form.spouse_name_hi || null,
             spouse_name_en: form.spouse_name_en || null,
             spouse_photo_url: spousePhotoUrl,
+            village_photo_url: villagePhotoUrl,
             tenure_start: form.tenure_start ? parseInt(form.tenure_start, 10) : null,
             tenure_end: form.tenure_end ? parseInt(form.tenure_end, 10) : null,
             election_slogan_hi: form.election_slogan_hi || null,
@@ -262,6 +294,7 @@ export default function SettingsForm(): React.JSX.Element {
         }
         setPhotoFile(null);
         setSpousePhotoFile(null);
+        setVillagePhotoFile(null);
     };
 
     return (
@@ -388,6 +421,20 @@ export default function SettingsForm(): React.JSX.Element {
                             />
                         </div>
                     </div>
+                </div>
+
+                {/* Village Photo */}
+                <div className='bg-white rounded-xl border border-slate-200 p-6'>
+                    <h3 className='text-lg font-semibold text-slate-900 mb-4'>
+                        🏘️ Village / Panchayat Photo (Background)
+                    </h3>
+                    <p className='text-xs text-slate-500 mb-3'>This photo will show as the hero background on the public page.</p>
+                    <PhotoUpload
+                        label='Village Photo'
+                        preview={villagePhotoPreview}
+                        onDrop={onVillagePhotoDrop}
+                        onRemove={removeVillagePhoto}
+                    />
                 </div>
 
                 {/* Tenure */}
