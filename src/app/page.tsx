@@ -250,13 +250,13 @@ export default function ReportCard(): React.JSX.Element {
                     <FadeIn delay={250}>
                         <div className='mt-8 inline-grid grid-cols-2 gap-5'>
                             {/* Gram Pradhan */}
-                            <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden text-center w-40 md:w-48'>
+                            <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden text-center w-44 md:w-52'>
                                 {settings.representative_photo_url ? (
-                                    <div className='relative w-full aspect-[3/4]'>
-                                        <Image src={settings.representative_photo_url} alt={repName} fill className='object-cover' sizes='200px' />
+                                    <div className='relative w-full aspect-square'>
+                                        <Image src={settings.representative_photo_url} alt={repName} fill className='object-cover' sizes='220px' />
                                     </div>
                                 ) : (
-                                    <div className='w-full aspect-[3/4] bg-white/10 flex items-center justify-center text-5xl'>👤</div>
+                                    <div className='w-full aspect-square bg-white/10 flex items-center justify-center text-5xl'>👤</div>
                                 )}
                                 <div className='px-3 py-3'>
                                     <p className='text-emerald-300 text-xs font-semibold tracking-wide'>{t('ग्राम प्रधान', 'Gram Pradhan')}</p>
@@ -266,13 +266,13 @@ export default function ReportCard(): React.JSX.Element {
 
                             {/* Husband / Pati */}
                             {(settings.spouse_name_hi || settings.spouse_name_en) && (
-                                <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden text-center w-40 md:w-48'>
+                                <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden text-center w-44 md:w-52'>
                                     {settings.spouse_photo_url ? (
-                                        <div className='relative w-full aspect-[3/4]'>
-                                            <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} fill className='object-cover' sizes='200px' />
+                                        <div className='relative w-full aspect-square'>
+                                            <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} fill className='object-cover' sizes='220px' />
                                         </div>
                                     ) : (
-                                        <div className='w-full aspect-[3/4] bg-white/10 flex items-center justify-center text-5xl'>👤</div>
+                                        <div className='w-full aspect-square bg-white/10 flex items-center justify-center text-5xl'>👤</div>
                                     )}
                                     <div className='px-3 py-3'>
                                         <p className='text-emerald-300 text-xs font-semibold tracking-wide'>{t('पति', 'Husband')}</p>
