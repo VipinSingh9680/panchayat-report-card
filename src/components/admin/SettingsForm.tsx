@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Save, Upload, X, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
@@ -141,6 +141,14 @@ export default function SettingsForm(): React.JSX.Element {
     const [villagePhotoPreview, setVillagePhotoPreview] = useState<string | null>(
         settings.village_photo_url,
     );
+
+    useEffect(() => {
+        setForm(settingsToForm(settings));
+        setPromises(settings.promises ?? []);
+        setPhotoPreview(settings.representative_photo_url);
+        setSpousePhotoPreview(settings.spouse_photo_url);
+        setVillagePhotoPreview(settings.village_photo_url);
+    }, [settings]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const { name, value } = e.target;
