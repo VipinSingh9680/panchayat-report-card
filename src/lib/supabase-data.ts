@@ -283,12 +283,11 @@ export const saveOtherWork = async (
         description_hi: work.description_hi,
         description_en: work.description_en,
         category: work.category,
-        ward: work.ward,
         location_hi: work.location_hi,
         location_en: work.location_en,
-        completion_date: work.completion_date,
+        event_date: work.event_date,
+        event_year: work.event_year,
         status: work.status,
-        slug: work.slug,
         updated_at: new Date().toISOString(),
     };
 
@@ -333,10 +332,8 @@ export const saveOtherWork = async (
         const rows = images.map((img) => ({
             other_work_id: saved.id,
             image_url: img.image_url,
-            image_type: img.image_type,
             caption: img.caption,
             sort_order: img.sort_order,
-            is_primary: img.is_primary,
         }));
         const { error: insertError } = await supabase
             .from('other_work_images')
