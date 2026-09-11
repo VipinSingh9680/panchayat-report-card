@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { useAppStore } from '@/lib/store';
 import { getLocalizedField, calculateDashboardStats, getWhatsAppShareUrl } from '@/lib/utils';
-import type { Project, Language } from '@/lib/types';
+import type { Project, ProjectImage, Language } from '@/lib/types';
 
 /* ── Load data from Supabase on mount ── */
 function useSupabaseLoader(): void {
@@ -62,10 +62,115 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
     );
 }
 
+/* ── Photo Gallery Modal ── */
+function PhotoGallery({
+    images,
+    title,
+    onClose,
+    t,
+}: {
+    images: ProjectImage[];
+    title: string;
+    onClose: () => void;
+    t: (hi: string, en: string) => string;
+}): React.JSX.Element {
+    const [activeIdx, setActiveIdx] = useState(0);
+    const handleKeyDown = useCallback((e: KeyboardEvent) => {
+        if (e.key === 'Escape') onClose();
+        if (e.key === 'ArrowRight') setActiveIdx((p) => Math.min(p + 1, images.length - 1));
+        if (e.key === 'ArrowLeft') setActiveIdx((p) => Math.max(p - 1, 0));
+    }, [images.length, onClose]);
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.body.style.overflow = '';
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleKeyDown]);
+
+    const getLabel = (type: string): string => {
+        if (type === 'before') return t('पहले', 'BEFORE');
+        if (type === 'after') return t('बाद में', 'AFTER');
+        return t('फोटो', 'PHOTO');
+    };
+
+    const getLabelColor = (type: string): string => {
+        if (type === 'before') return 'bg-red-500';
+        if (type === 'after') return 'bg-emerald-500';
+        return 'bg-blue-500';
+    };
+
+    const active = images[activeIdx];
+    if (!active) return <></>;
+
+    return (
+        <div className='fixed inset-0 z-[100] flex items-center justify-center' onClick={onClose}>
+            <div className='absolute inset-0 bg-black/80 backdrop-blur-sm' />
+            <div className='relative z-10 w-full max-w-3xl mx-4' onClick={(e) => e.stopPropagation()}>
+                {/* Close */}
+                <button onClick={onClose}
+                    className='absolute -top-12 right-0 text-white/70 hover:text-white text-sm font-medium flex items-center gap-1'>
+                    ✕ {t('बंद करें', 'Close')}
+                </button>
+
+                {/* Title */}
+                <h3 className='text-white font-bold text-lg mb-3 truncate'>{title}</h3>
+
+                {/* Main image */}
+                <div className='relative aspect-[16/10] bg-black rounded-2xl overflow-hidden'>
+                    <Image src={active.image_url} alt={title} fill className='object-contain' sizes='90vw' />
+                    <span className={`absolute top-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-lg ${getLabelColor(active.image_type)}`}>
+                        {getLabel(active.image_type)}
+                    </span>
+
+                    {/* Nav arrows */}
+                    {activeIdx > 0 && (
+                        <button onClick={() => setActiveIdx((p) => p - 1)}
+                            className='absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center text-xl'>
+                            ‹
+                        </button>
+                    )}
+                    {activeIdx < images.length - 1 && (
+                        <button onClick={() => setActiveIdx((p) => p + 1)}
+                            className='absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center text-xl'>
+                            ›
+                        </button>
+                    )}
+                </div>
+
+                {/* Thumbnails */}
+                {images.length > 1 && (
+                    <div className='flex gap-2 mt-3 overflow-x-auto pb-2'>
+                        {images.map((img, idx) => (
+                            <button key={img.id} onClick={() => setActiveIdx(idx)}
+                                className={`relative w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${
+                                    idx === activeIdx ? 'border-white scale-105' : 'border-transparent opacity-60 hover:opacity-90'
+                                }`}>
+                                <Image src={img.image_url} alt={getLabel(img.image_type)} fill className='object-cover' sizes='80px' />
+                                <span className={`absolute bottom-0.5 left-0.5 text-white text-[9px] font-bold px-1 rounded ${getLabelColor(img.image_type)}`}>
+                                    {getLabel(img.image_type)}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {/* Counter */}
+                <p className='text-white/50 text-xs text-center mt-2'>
+                    {activeIdx + 1} / {images.length} {t('फोटो', 'photos')}
+                </p>
+            </div>
+        </div>
+    );
+}
+
 /* ══════════════ MAIN PAGE ══════════════ */
 export default function ReportCard(): React.JSX.Element {
     useSupabaseLoader();
     const [lang, setLang] = useState<Language>('hi');
+    const [galleryProject, setGalleryProject] = useState<Project | null>(null);
     const { settings, projects, categories, otherWorks, welfareStats, isLoading } = useAppStore();
 
     const published = projects.filter((p) => p.status === 'published');
@@ -138,9 +243,9 @@ export default function ReportCard(): React.JSX.Element {
                             {/* Gram Pradhan */}
                             <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-8 py-6 text-center flex flex-col items-center justify-center'>
                                 {settings.representative_photo_url ? (
-                                    <Image src={settings.representative_photo_url} alt={repName} width={120} height={120} className='rounded-full border-4 border-white/30 object-cover w-28 h-28 md:w-32 md:h-32 mb-3' />
+                                    <Image src={settings.representative_photo_url} alt={repName} width={140} height={140} className='rounded-2xl border-4 border-white/30 object-cover w-32 h-36 md:w-36 md:h-40 mb-3 shadow-lg' />
                                 ) : (
-                                    <div className='w-28 h-28 md:w-32 md:h-32 rounded-full bg-white/20 flex items-center justify-center text-5xl mb-3'>👤</div>
+                                    <div className='w-32 h-36 md:w-36 md:h-40 rounded-2xl bg-white/20 flex items-center justify-center text-5xl mb-3'>👤</div>
                                 )}
                                 <p className='text-white/50 text-xs'>{t('ग्राम प्रधान', 'Gram Pradhan')}</p>
                                 <p className='text-lg font-bold'>{repName}</p>
@@ -153,9 +258,9 @@ export default function ReportCard(): React.JSX.Element {
                             {(settings.spouse_name_hi || settings.spouse_name_en) && (
                                 <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl px-8 py-6 text-center flex flex-col items-center justify-center'>
                                     {settings.spouse_photo_url ? (
-                                        <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} width={120} height={120} className='rounded-full border-4 border-white/30 object-cover w-28 h-28 md:w-32 md:h-32 mb-3' />
+                                        <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} width={140} height={140} className='rounded-2xl border-4 border-white/30 object-cover w-32 h-36 md:w-36 md:h-40 mb-3 shadow-lg' />
                                     ) : (
-                                        <div className='w-28 h-28 md:w-32 md:h-32 rounded-full bg-white/20 flex items-center justify-center text-5xl mb-3'>👤</div>
+                                        <div className='w-32 h-36 md:w-36 md:h-40 rounded-2xl bg-white/20 flex items-center justify-center text-5xl mb-3'>👤</div>
                                     )}
                                     <p className='text-white/50 text-xs'>{t('पति', 'Husband')}</p>
                                     <p className='text-lg font-bold'>{lf(settings, 'spouse_name')}</p>
@@ -266,43 +371,66 @@ export default function ReportCard(): React.JSX.Element {
                                 const afterImg = project.images?.find((img) => img.image_type === 'after');
                                 const anyImg = project.images?.[0];
                                 const hasBothBA = Boolean(beforeImg && afterImg);
+                                const totalPhotos = project.images?.length ?? 0;
 
                                 return (
                                     <FadeIn key={project.id} delay={i * 60}>
-                                        <div className='bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow duration-300'>
-                                            {/* Before & After side by side */}
+                                        <div
+                                            className='bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer group'
+                                            onClick={() => totalPhotos > 0 ? setGalleryProject(project) : undefined}>
+
+                                            {/* Before & After comparison */}
                                             {hasBothBA && (
-                                                <div className='grid grid-cols-2 relative'>
-                                                    <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center'>
-                                                        <span className='text-sm font-bold text-slate-400'>→</span>
-                                                    </div>
-                                                    <div className='relative aspect-[4/3]'>
-                                                        <Image src={beforeImg!.image_url} alt='Before' fill className='object-cover grayscale brightness-50' sizes='25vw' />
-                                                        <div className='absolute bottom-2 left-2'>
-                                                            <span className='text-white text-xs font-bold bg-red-500/90 px-2 py-0.5 rounded'>{t('पहले', 'BEFORE')}</span>
+                                                <div className='relative'>
+                                                    <div className='grid grid-cols-2'>
+                                                        <div className='relative aspect-[4/3]'>
+                                                            <Image src={beforeImg!.image_url} alt='Before' fill className='object-cover' sizes='25vw' />
+                                                            <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
+                                                            <div className='absolute bottom-2 left-2'>
+                                                                <span className='text-white text-xs font-bold bg-red-500 px-2.5 py-1 rounded-lg shadow'>{t('पहले', 'BEFORE')}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className='relative aspect-[4/3]'>
+                                                            <Image src={afterImg!.image_url} alt='After' fill className='object-cover' sizes='25vw' />
+                                                            <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
+                                                            <div className='absolute bottom-2 right-2'>
+                                                                <span className='text-white text-xs font-bold bg-emerald-500 px-2.5 py-1 rounded-lg shadow'>✅ {t('बाद में', 'AFTER')}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                    <div className='relative aspect-[4/3]'>
-                                                        <Image src={afterImg!.image_url} alt='After' fill className='object-cover' sizes='25vw' />
-                                                        <div className='absolute bottom-2 right-2'>
-                                                            <span className='text-white text-xs font-bold bg-emerald-500/90 px-2 py-0.5 rounded'>✅ {t('अब', 'NOW')}</span>
+                                                    {/* Center divider arrow */}
+                                                    <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20'>
+                                                        <div className='w-10 h-10 bg-white rounded-full shadow-xl flex items-center justify-center'>
+                                                            <span className='text-base font-black text-emerald-600'>→</span>
                                                         </div>
                                                     </div>
+                                                    {/* Photo count badge */}
+                                                    {totalPhotos > 2 && (
+                                                        <div className='absolute top-2 right-2 z-20 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded-lg'>
+                                                            📷 +{totalPhotos - 2} {t('और', 'more')}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
 
                                             {/* Single image fallback */}
                                             {!hasBothBA && anyImg && (
                                                 <div className='relative aspect-[16/9]'>
-                                                    <Image src={anyImg.image_url} alt={title} fill className='object-cover' sizes='50vw' />
+                                                    <Image src={anyImg.image_url} alt={title} fill className='object-cover group-hover:scale-105 transition-transform duration-500' sizes='50vw' />
+                                                    <div className='absolute inset-0 bg-gradient-to-t from-black/50 to-transparent' />
                                                     {anyImg.image_type === 'before' && (
                                                         <div className='absolute bottom-2 left-2'>
-                                                            <span className='text-white text-xs font-bold bg-red-500/90 px-2 py-0.5 rounded'>{t('पहले', 'BEFORE')}</span>
+                                                            <span className='text-white text-xs font-bold bg-red-500 px-2.5 py-1 rounded-lg shadow'>{t('पहले', 'BEFORE')}</span>
                                                         </div>
                                                     )}
                                                     {anyImg.image_type === 'after' && (
                                                         <div className='absolute bottom-2 right-2'>
-                                                            <span className='text-white text-xs font-bold bg-emerald-500/90 px-2 py-0.5 rounded'>✅ {t('अब', 'NOW')}</span>
+                                                            <span className='text-white text-xs font-bold bg-emerald-500 px-2.5 py-1 rounded-lg shadow'>✅ {t('बाद में', 'AFTER')}</span>
+                                                        </div>
+                                                    )}
+                                                    {totalPhotos > 1 && (
+                                                        <div className='absolute top-2 right-2 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded-lg'>
+                                                            📷 {totalPhotos} {t('फोटो', 'photos')}
                                                         </div>
                                                     )}
                                                 </div>
@@ -330,6 +458,14 @@ export default function ReportCard(): React.JSX.Element {
                                                     <div className='border-t border-slate-100 pt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-400'>
                                                         {project.scheme && <span>{t('योजना', 'Scheme')}: <strong className='text-slate-500'>{project.scheme}</strong></span>}
                                                         {project.department && <span>{t('विभाग', 'Dept')}: <strong className='text-slate-500'>{project.department}</strong></span>}
+                                                    </div>
+                                                )}
+
+                                                {totalPhotos > 0 && (
+                                                    <div className='mt-3 pt-2 border-t border-slate-100'>
+                                                        <span className='text-xs text-blue-600 font-medium group-hover:text-blue-700 transition-colors'>
+                                                            📷 {t('सभी फोटो देखें', 'View all photos')} ({totalPhotos})
+                                                        </span>
                                                     </div>
                                                 )}
                                             </div>
@@ -405,6 +541,16 @@ export default function ReportCard(): React.JSX.Element {
                     <p className='text-xs text-slate-300 mt-4'>© {new Date().getFullYear()} {t('सर्वाधिकार सुरक्षित', 'All Rights Reserved')}</p>
                 </div>
             </div>
+
+            {/* ════════ PHOTO GALLERY MODAL ════════ */}
+            {galleryProject && galleryProject.images && galleryProject.images.length > 0 && (
+                <PhotoGallery
+                    images={galleryProject.images}
+                    title={lf(galleryProject, 'title')}
+                    onClose={() => setGalleryProject(null)}
+                    t={t}
+                />
+            )}
         </div>
     );
 }
