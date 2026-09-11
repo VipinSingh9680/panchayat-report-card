@@ -191,16 +191,37 @@ export default function ReportCard(): React.JSX.Element {
         return c ? `${c.icon} ${lang === 'hi' ? c.name_hi : c.name_en}` : '';
     };
 
-    const years = [2025, 2024, 2023, 2022, 2021];
-    const projectsByYear = useMemo(() => {
-        const map = new Map<number, Project[]>();
-        years.forEach((y) => {
-            const yp = published.filter((p) => p.completion_year === y);
-            if (yp.length > 0) map.set(y, yp);
+    /* Fiscal year: April–March. If date available, use month; else treat completion_year as the start year */
+    const getFiscalYear = (project: Project): string => {
+        if (project.completion_date) {
+            const d = new Date(project.completion_date);
+            const month = d.getMonth() + 1;
+            const year = d.getFullYear();
+            const startYear = month >= 4 ? year : year - 1;
+            return `${startYear}-${String(startYear + 1).slice(2)}`;
+        }
+        if (project.completion_year) {
+            return `${project.completion_year}-${String(project.completion_year + 1).slice(2)}`;
+        }
+        return '';
+    };
+
+    const projectsByFY = useMemo(() => {
+        const map = new Map<string, Project[]>();
+        published.forEach((p) => {
+            const fy = getFiscalYear(p);
+            const key = fy || '__other__';
+            if (!map.has(key)) map.set(key, []);
+            map.get(key)!.push(p);
         });
-        const rest = published.filter((p) => !p.completion_year || !years.includes(p.completion_year));
-        if (rest.length > 0) map.set(0, rest);
-        return map;
+        const sorted = new Map(
+            [...map.entries()].sort((a, b) => {
+                if (a[0] === '__other__') return 1;
+                if (b[0] === '__other__') return -1;
+                return b[0].localeCompare(a[0]);
+            }),
+        );
+        return sorted;
     }, [published]);
 
     return (
@@ -365,20 +386,20 @@ export default function ReportCard(): React.JSX.Element {
                     </h2>
                 </FadeIn>
 
-                {Array.from(projectsByYear.entries()).map(([year, yProjects]) => (
-                    <div key={year} className='mb-10'>
+                {Array.from(projectsByFY.entries()).map(([fy, fyProjects]) => (
+                    <div key={fy} className='mb-10'>
                         <FadeIn>
                             <div className='flex items-center gap-4 mb-5'>
                                 <div className='bg-slate-800 text-white font-black text-xl px-5 py-2 rounded-xl shadow'>
-                                    📅 {year === 0 ? t('अन्य', 'Other') : year}
+                                    📅 {fy === '__other__' ? t('अन्य', 'Other') : fy}
                                 </div>
                                 <div className='flex-1 h-px bg-slate-300' />
-                                <span className='text-slate-400 text-base font-bold'>{yProjects.length} {t('कार्य', 'works')}</span>
+                                <span className='text-slate-400 text-base font-bold'>{fyProjects.length} {t('कार्य', 'works')}</span>
                             </div>
                         </FadeIn>
 
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
-                            {yProjects.map((project, i) => {
+                            {fyProjects.map((project, i) => {
                                 const title = lf(project, 'title');
                                 const desc = lf(project, 'description');
                                 const beforeImg = project.images?.find((img) => img.image_type === 'before');
