@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, TouchEvent as ReactTouchEvent } from 'react';
 import Image from 'next/image';
 import { useAppStore } from '@/lib/store';
 import { getLocalizedField, calculateDashboardStats, getWhatsAppShareUrl } from '@/lib/utils';
@@ -15,6 +15,100 @@ function useSupabaseLoader(): void {
             loadFromSupabase();
         }
     }, [dataLoaded, loadFromSupabase]);
+}
+
+/* ── Loading Skeleton ── */
+function LoadingSkeleton(): React.JSX.Element {
+    return (
+        <div className='min-h-screen bg-[#f0f4f8] animate-pulse'>
+            {/* Hero skeleton */}
+            <div className='bg-gradient-to-br from-emerald-600 to-teal-700 h-[400px] relative'>
+                <div className='absolute inset-0 flex flex-col items-center justify-center gap-4 px-6'>
+                    <div className='h-3 w-28 bg-white/20 rounded' />
+                    <div className='h-10 w-64 bg-white/20 rounded-xl' />
+                    <div className='h-3 w-40 bg-white/20 rounded' />
+                    <div className='flex gap-4 mt-6'>
+                        <div className='w-40 h-56 bg-white/10 rounded-2xl' />
+                        <div className='w-40 h-56 bg-white/10 rounded-2xl' />
+                    </div>
+                </div>
+            </div>
+            {/* Stats skeleton */}
+            <div className='max-w-5xl mx-auto px-6 mt-8'>
+                <div className='h-16 bg-amber-200/40 rounded-2xl mb-6' />
+                <div className='grid grid-cols-2 gap-4 max-w-md mx-auto mb-8'>
+                    <div className='h-28 bg-emerald-100 rounded-2xl' />
+                    <div className='h-28 bg-blue-100 rounded-2xl' />
+                </div>
+                <div className='grid grid-cols-2 md:grid-cols-3 gap-3 mb-8'>
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <div key={i} className='h-28 bg-white rounded-2xl border border-slate-100' />
+                    ))}
+                </div>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
+                    {[1, 2, 3, 4].map((i) => (
+                        <div key={i} className='h-64 bg-white rounded-2xl border border-slate-100' />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+/* ── Scroll to Top Button ── */
+function ScrollToTop(): React.JSX.Element {
+    const [show, setShow] = useState(false);
+    useEffect(() => {
+        const onScroll = (): void => setShow(window.scrollY > 400);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, []);
+    if (!show) return <></>;
+    return (
+        <button
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className='fixed bottom-20 right-4 z-40 w-11 h-11 bg-slate-800 text-white rounded-full shadow-xl flex items-center justify-center text-lg active:scale-90 transition-all'
+            aria-label='Scroll to top'>
+            ↑
+        </button>
+    );
+}
+
+/* ── Bottom Section Navigator ── */
+function BottomNav({ t, sections }: {
+    t: (hi: string, en: string) => string;
+    sections: { id: string; icon: string; label: string }[];
+}): React.JSX.Element {
+    const [active, setActive] = useState('');
+    useEffect(() => {
+        const onScroll = (): void => {
+            let current = '';
+            for (const s of sections) {
+                const el = document.getElementById(s.id);
+                if (el && el.getBoundingClientRect().top <= 150) current = s.id;
+            }
+            setActive(current);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, [sections]);
+    return (
+        <nav className='fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 safe-bottom'>
+            <div className='flex justify-around items-center h-14 max-w-lg mx-auto'>
+                {sections.map((s) => (
+                    <button
+                        key={s.id}
+                        onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                        className={`flex flex-col items-center gap-0.5 px-3 py-1 rounded-lg transition-colors ${
+                            active === s.id ? 'text-emerald-600' : 'text-slate-400'
+                        }`}>
+                        <span className='text-lg'>{s.icon}</span>
+                        <span className='text-[10px] font-semibold'>{s.label}</span>
+                    </button>
+                ))}
+            </div>
+        </nav>
+    );
 }
 
 /* ── Animated Counter ── */
@@ -103,6 +197,13 @@ function PhotoGallery({
     };
 
     const active = images[activeIdx];
+    const touchStartX = useRef(0);
+    const handleTouchStart = (e: ReactTouchEvent): void => { touchStartX.current = e.touches[0].clientX; };
+    const handleTouchEnd = (e: ReactTouchEvent): void => {
+        const diff = touchStartX.current - e.changedTouches[0].clientX;
+        if (diff > 50) setActiveIdx((p) => Math.min(p + 1, images.length - 1));
+        if (diff < -50) setActiveIdx((p) => Math.max(p - 1, 0));
+    };
     if (!active) return <></>;
 
     return (
@@ -119,7 +220,10 @@ function PhotoGallery({
                 <h3 className='text-white font-bold text-lg mb-3 truncate'>{title}</h3>
 
                 {/* Main image */}
-                <div className='relative aspect-[16/10] bg-black rounded-2xl overflow-hidden'>
+                <div
+                    className='relative aspect-[16/10] bg-black rounded-2xl overflow-hidden'
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}>
                     <Image src={active.image_url} alt={title} fill className='object-contain' sizes='90vw' />
                     <span className={`absolute top-3 left-3 text-white text-xs font-bold px-3 py-1 rounded-lg ${getLabelColor(active.image_type)}`}>
                         {getLabel(active.image_type)}
@@ -251,8 +355,20 @@ export default function ReportCard(): React.JSX.Element {
         return fyKeys.filter((k) => k === activeFY);
     }, [activeFY, fyKeys]);
 
+    const navSections = useMemo(() => [
+        { id: 'sec-stats', icon: '📊', label: t('आँकड़े', 'Stats') },
+        { id: 'sec-projects', icon: '🏗️', label: t('कार्य', 'Projects') },
+        { id: 'sec-other', icon: '🎉', label: t('अन्य', 'Other') },
+        { id: 'sec-welfare', icon: '❤️', label: t('कल्याण', 'Welfare') },
+    ], [lang]);
+
+    if (isLoading) return <LoadingSkeleton />;
+
     return (
-        <div className='min-h-screen bg-[#f0f4f8]' style={{ fontFamily: "'Noto Sans Devanagari', 'Inter', sans-serif" }}>
+        <div className='min-h-screen bg-[#f0f4f8] pb-16' style={{ fontFamily: "'Noto Sans Devanagari', 'Inter', sans-serif" }}>
+
+            <ScrollToTop />
+            <BottomNav t={t} sections={navSections} />
 
             {/* Language Toggle */}
             <button onClick={() => setLang(lang === 'hi' ? 'en' : 'hi')}
@@ -347,7 +463,7 @@ export default function ReportCard(): React.JSX.Element {
             </div>
 
             {/* ════════ Stats ════════ */}
-            <div className='max-w-5xl mx-auto px-6 mb-6'>
+            <div id='sec-stats' className='max-w-5xl mx-auto px-6 mb-6 scroll-mt-16'>
                 <div className='grid grid-cols-2 gap-4 max-w-md mx-auto'>
                     {[
                         { value: stats.totalProjects, suffix: '+', label: t('पूर्ण कार्य', 'Completed Works'), gradient: 'from-emerald-500 to-teal-500' },
@@ -364,7 +480,7 @@ export default function ReportCard(): React.JSX.Element {
             </div>
 
             {/* ════════ Welfare Distribution Stats ════════ */}
-            <div className='max-w-5xl mx-auto px-6 mb-6'>
+            <div id='sec-welfare' className='max-w-5xl mx-auto px-6 mb-6 scroll-mt-16'>
                 <FadeIn>
                     <h3 className='text-xl font-bold text-slate-800 text-center mb-4'>
                         📊 {t('योजनाओं का वितरण एवं लाभ', 'Scheme Distribution & Benefits')}
@@ -406,7 +522,7 @@ export default function ReportCard(): React.JSX.Element {
             </div>
 
             {/* ════════ PROJECTS — Sticky FY tabs + Accordion ════════ */}
-            <div className='max-w-5xl mx-auto px-6 mb-10'>
+            <div id='sec-projects' className='max-w-5xl mx-auto px-6 mb-10 scroll-mt-16'>
                 <FadeIn>
                     <h2 className='text-3xl font-black text-slate-900 text-center mb-6'>
                         🏗️ {t('पूर्ण विकास कार्य', 'Completed Development Works')}
@@ -595,7 +711,7 @@ export default function ReportCard(): React.JSX.Element {
 
             {/* ════════ OTHER ACHIEVEMENTS ════════ */}
             {publishedOther.length > 0 && (
-                <div className='max-w-5xl mx-auto px-6 mb-10'>
+                <div id='sec-other' className='max-w-5xl mx-auto px-6 mb-10 scroll-mt-16'>
                     <FadeIn>
                         <h2 className='text-3xl font-black text-slate-900 text-center mb-8'>
                             🌟 {t('अन्य उपलब्धियाँ', 'Other Achievements')}
@@ -639,15 +755,41 @@ export default function ReportCard(): React.JSX.Element {
                         <p className='text-white/80 text-base mb-5'>
                             {t('यह रिपोर्ट कार्ड अपने परिवार और पड़ोसियों को भी दिखाएं', 'Share this report card with family and neighbors')}
                         </p>
-                        <button
-                            onClick={() => {
-                                const url = typeof window !== 'undefined' ? window.location.origin : '';
-                                const msg = `${panchayatName} — ${t('विकास रिपोर्ट कार्ड', 'Development Report Card')}\n${stats.totalProjects}+ ${t('पूर्ण विकास कार्य', 'completed works')}\n${t('देखें', 'View')}: `;
-                                window.open(getWhatsAppShareUrl(msg, url), '_blank');
-                            }}
-                            className='bg-white text-emerald-700 font-bold px-10 py-4 rounded-xl text-lg active:scale-95 transition-all duration-200 shadow-lg'>
-                            💬 {t('WhatsApp पर भेजें', 'Share on WhatsApp')}
-                        </button>
+                        <div className='flex flex-col sm:flex-row gap-3 justify-center items-center'>
+                            <button
+                                onClick={() => {
+                                    const url = typeof window !== 'undefined' ? window.location.origin : '';
+                                    const msg = `${panchayatName} — ${t('विकास रिपोर्ट कार्ड', 'Development Report Card')}\n${stats.totalProjects}+ ${t('पूर्ण विकास कार्य', 'completed works')}\n${t('देखें', 'View')}: `;
+                                    window.open(getWhatsAppShareUrl(msg, url), '_blank');
+                                }}
+                                className='bg-white text-emerald-700 font-bold px-8 py-3 rounded-xl text-base active:scale-95 transition-all duration-200 shadow-lg w-full sm:w-auto'>
+                                💬 {t('WhatsApp पर भेजें', 'WhatsApp')}
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    const { shareAsImage } = await import('@/lib/share-utils');
+                                    await shareAsImage({
+                                        panchayatName, block, district, state, repName,
+                                        tenure: settings.tenure_start && settings.tenure_end ? `${settings.tenure_start}–${settings.tenure_end}` : '',
+                                        stats, lang,
+                                    });
+                                }}
+                                className='bg-white/20 border border-white/40 text-white font-bold px-8 py-3 rounded-xl text-base active:scale-95 transition-all duration-200 w-full sm:w-auto'>
+                                📸 {t('फोटो में शेयर करें', 'Share as Image')}
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    const { downloadPdf } = await import('@/lib/share-utils');
+                                    await downloadPdf({
+                                        panchayatName, block, district, state, repName,
+                                        tenure: settings.tenure_start && settings.tenure_end ? `${settings.tenure_start}–${settings.tenure_end}` : '',
+                                        stats, lang,
+                                    });
+                                }}
+                                className='bg-white/20 border border-white/40 text-white font-bold px-8 py-3 rounded-xl text-base active:scale-95 transition-all duration-200 w-full sm:w-auto'>
+                                📄 {t('PDF डाउनलोड करें', 'Download PDF')}
+                            </button>
+                        </div>
                     </div>
                 </FadeIn>
                 <div className='mt-8 text-center'>

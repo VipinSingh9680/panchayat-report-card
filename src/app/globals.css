@@ -32,3 +32,8 @@ body {
 img {
     transition: opacity 0.3s ease;
 }
+
+/* Bottom nav safe area for notched phones */
+.safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
