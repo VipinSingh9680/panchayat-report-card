@@ -17,8 +17,22 @@ export interface PanchayatSettings {
     village_photo_url: string | null;
     tenure_start: number | null;
     tenure_end: number | null;
+    election_slogan_hi: string | null;
+    election_slogan_en: string | null;
+    election_year: number | null;
+    election_symbol: string | null;
+    campaign_message_hi: string | null;
+    campaign_message_en: string | null;
+    promises: PromiseItem[];
+    show_campaign: boolean;
     created_at: string;
     updated_at: string;
+}
+
+export interface PromiseItem {
+    text_hi: string;
+    text_en: string;
+    icon: string;
 }
 
 export interface Category {

@@ -9,7 +9,7 @@ import {
     uploadImage,
     isSupabaseConfigured,
 } from '@/lib/supabase-data';
-import type { PanchayatSettings } from '@/lib/types';
+import type { PanchayatSettings, PromiseItem } from '@/lib/types';
 
 interface FormData {
     panchayat_name_hi: string;
@@ -28,6 +28,13 @@ interface FormData {
     spouse_photo_url: string;
     tenure_start: string;
     tenure_end: string;
+    election_slogan_hi: string;
+    election_slogan_en: string;
+    election_year: string;
+    election_symbol: string;
+    campaign_message_hi: string;
+    campaign_message_en: string;
+    show_campaign: boolean;
 }
 
 function settingsToForm(s: PanchayatSettings): FormData {
@@ -48,6 +55,13 @@ function settingsToForm(s: PanchayatSettings): FormData {
         spouse_photo_url: s.spouse_photo_url ?? '',
         tenure_start: s.tenure_start?.toString() ?? '',
         tenure_end: s.tenure_end?.toString() ?? '',
+        election_slogan_hi: s.election_slogan_hi ?? '',
+        election_slogan_en: s.election_slogan_en ?? '',
+        election_year: s.election_year?.toString() ?? '',
+        election_symbol: s.election_symbol ?? '',
+        campaign_message_hi: s.campaign_message_hi ?? '',
+        campaign_message_en: s.campaign_message_en ?? '',
+        show_campaign: s.show_campaign ?? false,
     };
 }
 
@@ -116,6 +130,7 @@ export default function SettingsForm(): React.JSX.Element {
     const [saveError, setSaveError] = useState<string | null>(null);
     const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [spousePhotoFile, setSpousePhotoFile] = useState<File | null>(null);
+    const [promises, setPromises] = useState<PromiseItem[]>(settings.promises ?? []);
     const [photoPreview, setPhotoPreview] = useState<string | null>(
         settings.representative_photo_url,
     );
@@ -214,6 +229,14 @@ export default function SettingsForm(): React.JSX.Element {
             spouse_photo_url: spousePhotoUrl,
             tenure_start: form.tenure_start ? parseInt(form.tenure_start, 10) : null,
             tenure_end: form.tenure_end ? parseInt(form.tenure_end, 10) : null,
+            election_slogan_hi: form.election_slogan_hi || null,
+            election_slogan_en: form.election_slogan_en || null,
+            election_year: form.election_year ? parseInt(form.election_year, 10) : null,
+            election_symbol: form.election_symbol || null,
+            campaign_message_hi: form.campaign_message_hi || null,
+            campaign_message_en: form.campaign_message_en || null,
+            promises,
+            show_campaign: form.show_campaign,
             updated_at: new Date().toISOString(),
         };
         setSettings(updated);
@@ -385,6 +408,89 @@ export default function SettingsForm(): React.JSX.Element {
                                 className='w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
                                 placeholder='2025' />
                         </div>
+                    </div>
+                </div>
+
+                {/* Election Campaign */}
+                <div className='bg-white rounded-xl border-2 border-orange-200 p-6'>
+                    <div className='flex items-center justify-between mb-4'>
+                        <h3 className='text-lg font-semibold text-slate-900'>
+                            🗳️ Election Campaign / चुनाव प्रचार
+                        </h3>
+                        <label className='flex items-center gap-2 cursor-pointer'>
+                            <input
+                                type='checkbox'
+                                checked={form.show_campaign}
+                                onChange={(e) => { setForm((prev) => ({ ...prev, show_campaign: e.target.checked })); setSaved(false); }}
+                                className='w-5 h-5 rounded border-slate-300 text-orange-500 focus:ring-orange-500' />
+                            <span className='text-sm font-medium text-orange-600'>Show on page</span>
+                        </label>
+                    </div>
+                    <p className='text-xs text-slate-500 mb-4'>Toggle ON to show campaign section on the public page. Fill details below.</p>
+
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+                        <div>
+                            <label htmlFor='election_slogan_hi' className='block text-sm font-medium text-slate-700 mb-1'>Slogan (Hindi)</label>
+                            <input id='election_slogan_hi' name='election_slogan_hi' value={form.election_slogan_hi} onChange={handleChange}
+                                className='w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500'
+                                placeholder='विकास की राह पर फिर से चलें' />
+                        </div>
+                        <div>
+                            <label htmlFor='election_slogan_en' className='block text-sm font-medium text-slate-700 mb-1'>Slogan (English)</label>
+                            <input id='election_slogan_en' name='election_slogan_en' value={form.election_slogan_en} onChange={handleChange}
+                                className='w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500'
+                                placeholder='Walk the path of development again' />
+                        </div>
+                        <div>
+                            <label htmlFor='election_year' className='block text-sm font-medium text-slate-700 mb-1'>Election Year</label>
+                            <input id='election_year' name='election_year' type='number' value={form.election_year} onChange={handleChange}
+                                className='w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500'
+                                placeholder='2025' />
+                        </div>
+                        <div>
+                            <label htmlFor='election_symbol' className='block text-sm font-medium text-slate-700 mb-1'>Election Symbol (emoji)</label>
+                            <input id='election_symbol' name='election_symbol' value={form.election_symbol} onChange={handleChange}
+                                className='w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500'
+                                placeholder='🌾 or 🏠 or any emoji' />
+                        </div>
+                        <div className='md:col-span-2'>
+                            <label htmlFor='campaign_message_hi' className='block text-sm font-medium text-slate-700 mb-1'>Appeal Message (Hindi)</label>
+                            <textarea id='campaign_message_hi' name='campaign_message_hi' value={form.campaign_message_hi}
+                                onChange={(e) => { setForm((prev) => ({ ...prev, campaign_message_hi: e.target.value })); setSaved(false); }}
+                                rows={3}
+                                className='w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500'
+                                placeholder='गाँव के विकास के लिए मैंने जो काम किए हैं वो आपके सामने हैं। आगे भी गाँव की सेवा करने का मौका दीजिए।' />
+                        </div>
+                        <div className='md:col-span-2'>
+                            <label htmlFor='campaign_message_en' className='block text-sm font-medium text-slate-700 mb-1'>Appeal Message (English)</label>
+                            <textarea id='campaign_message_en' name='campaign_message_en' value={form.campaign_message_en}
+                                onChange={(e) => { setForm((prev) => ({ ...prev, campaign_message_en: e.target.value })); setSaved(false); }}
+                                rows={3}
+                                className='w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500'
+                                placeholder='The works I have done for village development are in front of you. Give me a chance to serve the village again.' />
+                        </div>
+                    </div>
+
+                    {/* Promises List */}
+                    <div className='border-t border-slate-200 pt-4'>
+                        <h4 className='text-sm font-semibold text-slate-700 mb-3'>📋 Promises / वादे (Next Term)</h4>
+                        {promises.map((p, i) => (
+                            <div key={i} className='flex gap-2 mb-2 items-start'>
+                                <input value={p.icon} onChange={(e) => { const next = [...promises]; next[i] = { ...next[i], icon: e.target.value }; setPromises(next); setSaved(false); }}
+                                    className='w-12 px-2 py-2 border border-slate-300 rounded-lg text-sm text-center' placeholder='🛣️' />
+                                <input value={p.text_hi} onChange={(e) => { const next = [...promises]; next[i] = { ...next[i], text_hi: e.target.value }; setPromises(next); setSaved(false); }}
+                                    className='flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm' placeholder='Hindi text' />
+                                <input value={p.text_en} onChange={(e) => { const next = [...promises]; next[i] = { ...next[i], text_en: e.target.value }; setPromises(next); setSaved(false); }}
+                                    className='flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm' placeholder='English text' />
+                                <button type='button' onClick={() => { setPromises(promises.filter((_, j) => j !== i)); setSaved(false); }}
+                                    className='px-2 py-2 text-red-500 hover:bg-red-50 rounded-lg text-sm'>✕</button>
+                            </div>
+                        ))}
+                        <button type='button'
+                            onClick={() => { setPromises([...promises, { icon: '✅', text_hi: '', text_en: '' }]); setSaved(false); }}
+                            className='text-sm text-orange-600 hover:text-orange-700 font-medium mt-1'>
+                            + Add Promise
+                        </button>
                     </div>
                 </div>
 

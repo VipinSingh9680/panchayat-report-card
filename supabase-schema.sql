@@ -23,6 +23,15 @@ CREATE TABLE panchayat_settings (
     village_photo_url TEXT,
     tenure_start INTEGER,
     tenure_end INTEGER,
+    -- Election campaign fields
+    election_slogan_hi TEXT,
+    election_slogan_en TEXT,
+    election_year INTEGER,
+    election_symbol TEXT,
+    campaign_message_hi TEXT,
+    campaign_message_en TEXT,
+    promises JSONB DEFAULT '[]'::jsonb,
+    show_campaign BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now()
 );
