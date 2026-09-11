@@ -7,6 +7,7 @@ import {
     saveOtherWork as dbSaveOtherWork,
     uploadImage,
     isSupabaseConfigured,
+    fetchOtherWorks,
 } from '@/lib/supabase-data';
 import OtherWorkList from '@/components/admin/OtherWorkList';
 import OtherWorkForm from '@/components/admin/OtherWorkForm';
@@ -15,7 +16,7 @@ import type { OtherWork } from '@/lib/types';
 type ViewMode = 'list' | 'create' | 'edit';
 
 export default function OtherWorksPage(): React.JSX.Element {
-    const { addOtherWork, updateOtherWork } = useAppStore();
+    const { addOtherWork, updateOtherWork, setOtherWorks } = useAppStore();
     const [view, setView] = useState<ViewMode>('list');
     const [editingWork, setEditingWork] = useState<OtherWork | undefined>(undefined);
 
@@ -51,6 +52,9 @@ export default function OtherWorksPage(): React.JSX.Element {
                 );
                 const { images: _, ...workData } = work;
                 await dbSaveOtherWork(workData, uploadedImages);
+
+                const freshWorks = await fetchOtherWorks();
+                setOtherWorks(freshWorks);
             } catch (err) {
                 console.error('Failed to save other work to Supabase:', err);
             }

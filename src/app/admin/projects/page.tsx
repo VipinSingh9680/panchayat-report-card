@@ -7,6 +7,7 @@ import {
     saveProject as dbSaveProject,
     uploadImage,
     isSupabaseConfigured,
+    fetchProjects,
 } from '@/lib/supabase-data';
 import ProjectList from '@/components/admin/ProjectList';
 import ProjectForm from '@/components/admin/ProjectForm';
@@ -15,7 +16,7 @@ import type { Project } from '@/lib/types';
 type ViewMode = 'list' | 'create' | 'edit';
 
 export default function ProjectsPage(): React.JSX.Element {
-    const { addProject, updateProject } = useAppStore();
+    const { addProject, updateProject, setProjects } = useAppStore();
     const [view, setView] = useState<ViewMode>('list');
     const [editingProject, setEditingProject] = useState<Project | undefined>(undefined);
     const [saving, setSaving] = useState(false);
@@ -51,6 +52,9 @@ export default function ProjectsPage(): React.JSX.Element {
                 );
                 const { images: _, ...projectData } = project;
                 await dbSaveProject(projectData, uploadedImages);
+
+                const freshProjects = await fetchProjects();
+                setProjects(freshProjects);
             } catch (err) {
                 console.error('Failed to save project to Supabase:', err);
             } finally {

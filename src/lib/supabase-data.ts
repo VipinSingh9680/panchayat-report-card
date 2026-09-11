@@ -125,7 +125,8 @@ export const fetchAllData = async (): Promise<AllData> => {
 export const saveSettings = async (
     settings: Partial<PanchayatSettings>,
 ): Promise<PanchayatSettings> => {
-    const payload = { ...settings, updated_at: new Date().toISOString() };
+    const { id: _id, created_at: _created, ...payload } = settings as Record<string, unknown>;
+    const updatePayload = { ...payload, updated_at: new Date().toISOString() };
 
     const { data: existing } = await supabase
         .from('panchayat_settings')
@@ -136,7 +137,7 @@ export const saveSettings = async (
     if (existing?.id) {
         const { data, error } = await supabase
             .from('panchayat_settings')
-            .update(payload)
+            .update(updatePayload)
             .eq('id', existing.id)
             .select()
             .single();
@@ -149,7 +150,7 @@ export const saveSettings = async (
 
     const { data, error } = await supabase
         .from('panchayat_settings')
-        .insert(payload)
+        .insert(updatePayload)
         .select()
         .single();
 
@@ -163,20 +164,35 @@ export const saveProject = async (
     project: Omit<Project, 'images'>,
     images: ProjectImage[],
 ): Promise<Project> => {
-    const { data, error } = await supabase
-        .from('projects')
-        .upsert(
-            { ...project, updated_at: new Date().toISOString() },
-            { onConflict: 'id' },
-        )
-        .select()
-        .single();
+    const isExisting = !project.id.startsWith('p-');
 
-    if (error) {
-        throw new Error(`Failed to save project: ${error.message}`);
+    let saved: Project;
+
+    if (isExisting) {
+        const { data, error } = await supabase
+            .from('projects')
+            .update({ ...project, updated_at: new Date().toISOString() })
+            .eq('id', project.id)
+            .select()
+            .single();
+
+        if (error) {
+            throw new Error(`Failed to update project: ${error.message}`);
+        }
+        saved = data as Project;
+    } else {
+        const { id: _id, ...projectWithoutId } = project;
+        const { data, error } = await supabase
+            .from('projects')
+            .insert({ ...projectWithoutId, updated_at: new Date().toISOString() })
+            .select()
+            .single();
+
+        if (error) {
+            throw new Error(`Failed to insert project: ${error.message}`);
+        }
+        saved = data as Project;
     }
-
-    const saved = data as Project;
 
     const { error: deleteError } = await supabase
         .from('project_images')
@@ -188,7 +204,10 @@ export const saveProject = async (
     }
 
     if (images.length > 0) {
-        const rows = images.map((img) => ({ ...img, project_id: saved.id }));
+        const rows = images.map((img) => {
+            const { id: _imgId, ...imgWithoutId } = img;
+            return { ...imgWithoutId, project_id: saved.id };
+        });
         const { error: insertError } = await supabase
             .from('project_images')
             .insert(rows);
@@ -213,20 +232,35 @@ export const saveOtherWork = async (
     work: Omit<OtherWork, 'images'>,
     images: OtherWorkImage[],
 ): Promise<OtherWork> => {
-    const { data, error } = await supabase
-        .from('other_works')
-        .upsert(
-            { ...work, updated_at: new Date().toISOString() },
-            { onConflict: 'id' },
-        )
-        .select()
-        .single();
+    const isExisting = !work.id.startsWith('ow-');
 
-    if (error) {
-        throw new Error(`Failed to save other work: ${error.message}`);
+    let saved: OtherWork;
+
+    if (isExisting) {
+        const { data, error } = await supabase
+            .from('other_works')
+            .update({ ...work, updated_at: new Date().toISOString() })
+            .eq('id', work.id)
+            .select()
+            .single();
+
+        if (error) {
+            throw new Error(`Failed to update other work: ${error.message}`);
+        }
+        saved = data as OtherWork;
+    } else {
+        const { id: _id, ...workWithoutId } = work;
+        const { data, error } = await supabase
+            .from('other_works')
+            .insert({ ...workWithoutId, updated_at: new Date().toISOString() })
+            .select()
+            .single();
+
+        if (error) {
+            throw new Error(`Failed to insert other work: ${error.message}`);
+        }
+        saved = data as OtherWork;
     }
-
-    const saved = data as OtherWork;
 
     const { error: deleteError } = await supabase
         .from('other_work_images')
@@ -238,7 +272,10 @@ export const saveOtherWork = async (
     }
 
     if (images.length > 0) {
-        const rows = images.map((img) => ({ ...img, other_work_id: saved.id }));
+        const rows = images.map((img) => {
+            const { id: _imgId, ...imgWithoutId } = img;
+            return { ...imgWithoutId, other_work_id: saved.id };
+        });
         const { error: insertError } = await supabase
             .from('other_work_images')
             .insert(rows);
@@ -260,14 +297,31 @@ export const deleteOtherWork = async (id: string): Promise<void> => {
 };
 
 export const saveWelfareStat = async (stat: WelfareStat): Promise<WelfareStat> => {
+    const isExisting = !stat.id.startsWith('ws-');
+
+    if (isExisting) {
+        const { data, error } = await supabase
+            .from('welfare_stats')
+            .update(stat)
+            .eq('id', stat.id)
+            .select()
+            .single();
+
+        if (error) {
+            throw new Error(`Failed to update welfare stat: ${error.message}`);
+        }
+        return data as WelfareStat;
+    }
+
+    const { id: _id, ...statWithoutId } = stat;
     const { data, error } = await supabase
         .from('welfare_stats')
-        .upsert(stat, { onConflict: 'id' })
+        .insert(statWithoutId)
         .select()
         .single();
 
     if (error) {
-        throw new Error(`Failed to save welfare stat: ${error.message}`);
+        throw new Error(`Failed to insert welfare stat: ${error.message}`);
     }
 
     return data as WelfareStat;
