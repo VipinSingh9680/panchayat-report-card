@@ -264,28 +264,47 @@ export default function ReportCard(): React.JSX.Element {
                                 const desc = lf(project, 'description');
                                 const beforeImg = project.images?.find((img) => img.image_type === 'before');
                                 const afterImg = project.images?.find((img) => img.image_type === 'after');
+                                const anyImg = project.images?.[0];
+                                const hasBothBA = Boolean(beforeImg && afterImg);
 
                                 return (
                                     <FadeIn key={project.id} delay={i * 60}>
                                         <div className='bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow duration-300'>
-                                            {/* Before & After */}
-                                            {beforeImg && afterImg && (
+                                            {/* Before & After side by side */}
+                                            {hasBothBA && (
                                                 <div className='grid grid-cols-2 relative'>
                                                     <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center'>
                                                         <span className='text-sm font-bold text-slate-400'>→</span>
                                                     </div>
                                                     <div className='relative aspect-[4/3]'>
-                                                        <Image src={beforeImg.image_url} alt='Before' fill className='object-cover grayscale brightness-50' sizes='25vw' />
+                                                        <Image src={beforeImg!.image_url} alt='Before' fill className='object-cover grayscale brightness-50' sizes='25vw' />
                                                         <div className='absolute bottom-2 left-2'>
                                                             <span className='text-white text-xs font-bold bg-red-500/90 px-2 py-0.5 rounded'>{t('पहले', 'BEFORE')}</span>
                                                         </div>
                                                     </div>
                                                     <div className='relative aspect-[4/3]'>
-                                                        <Image src={afterImg.image_url} alt='After' fill className='object-cover' sizes='25vw' />
+                                                        <Image src={afterImg!.image_url} alt='After' fill className='object-cover' sizes='25vw' />
                                                         <div className='absolute bottom-2 right-2'>
                                                             <span className='text-white text-xs font-bold bg-emerald-500/90 px-2 py-0.5 rounded'>✅ {t('अब', 'NOW')}</span>
                                                         </div>
                                                     </div>
+                                                </div>
+                                            )}
+
+                                            {/* Single image fallback */}
+                                            {!hasBothBA && anyImg && (
+                                                <div className='relative aspect-[16/9]'>
+                                                    <Image src={anyImg.image_url} alt={title} fill className='object-cover' sizes='50vw' />
+                                                    {anyImg.image_type === 'before' && (
+                                                        <div className='absolute bottom-2 left-2'>
+                                                            <span className='text-white text-xs font-bold bg-red-500/90 px-2 py-0.5 rounded'>{t('पहले', 'BEFORE')}</span>
+                                                        </div>
+                                                    )}
+                                                    {anyImg.image_type === 'after' && (
+                                                        <div className='absolute bottom-2 right-2'>
+                                                            <span className='text-white text-xs font-bold bg-emerald-500/90 px-2 py-0.5 rounded'>✅ {t('अब', 'NOW')}</span>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             )}
 
