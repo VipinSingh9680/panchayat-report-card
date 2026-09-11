@@ -1,0 +1,34 @@
+@import 'tailwindcss';
+
+@theme {
+    --font-hindi: 'Noto Sans Devanagari', 'Inter', sans-serif;
+    --color-primary-50: #ecfdf5;
+    --color-primary-100: #d1fae5;
+    --color-primary-500: #10b981;
+    --color-primary-600: #059669;
+    --color-primary-700: #047857;
+    --color-primary-800: #065f46;
+    --color-primary-900: #064e3b;
+}
+
+html {
+    scroll-behavior: smooth;
+    font-size: 18px;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+@media (max-width: 640px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+/* Smooth image loading */
+img {
+    transition: opacity 0.3s ease;
+}
