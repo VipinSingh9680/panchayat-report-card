@@ -3,6 +3,11 @@
 import React, { useState } from 'react';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
+import {
+    saveOtherWork as dbSaveOtherWork,
+    uploadImage,
+    isSupabaseConfigured,
+} from '@/lib/supabase-data';
 import OtherWorkList from '@/components/admin/OtherWorkList';
 import OtherWorkForm from '@/components/admin/OtherWorkForm';
 import type { OtherWork } from '@/lib/types';
@@ -19,12 +24,38 @@ export default function OtherWorksPage(): React.JSX.Element {
         setView('edit');
     };
 
-    const handleSave = (work: OtherWork): void => {
+    const handleSave = async (work: OtherWork): Promise<void> => {
         if (view === 'edit' && editingWork) {
             updateOtherWork(editingWork.id, work);
         } else {
             addOtherWork(work);
         }
+
+        if (isSupabaseConfigured()) {
+            try {
+                const uploadedImages = await Promise.all(
+                    (work.images ?? []).map(async (img) => {
+                        if (img.image_url.startsWith('blob:')) {
+                            const resp = await fetch(img.image_url);
+                            const blob = await resp.blob();
+                            const file = new File(
+                                [blob],
+                                `work-${Date.now()}.jpg`,
+                                { type: blob.type },
+                            );
+                            const url = await uploadImage(file, 'other-works');
+                            return { ...img, image_url: url };
+                        }
+                        return img;
+                    }),
+                );
+                const { images: _, ...workData } = work;
+                await dbSaveOtherWork(workData, uploadedImages);
+            } catch (err) {
+                console.error('Failed to save other work to Supabase:', err);
+            }
+        }
+
         setView('list');
         setEditingWork(undefined);
     };

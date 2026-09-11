@@ -3,6 +3,10 @@
 import React, { useState, useMemo } from 'react';
 import { Edit2, Trash2, Eye, EyeOff, Search } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
+import {
+    deleteOtherWork as dbDeleteOtherWork,
+    isSupabaseConfigured,
+} from '@/lib/supabase-data';
 import type { OtherWork } from '@/lib/types';
 
 interface OtherWorkListProps {
@@ -39,6 +43,11 @@ export default function OtherWorkList({ onEdit }: OtherWorkListProps): React.JSX
     const handleDelete = (work: OtherWork): void => {
         if (window.confirm(`Delete "${work.title_hi}"? This cannot be undone.`)) {
             deleteOtherWork(work.id);
+            if (isSupabaseConfigured()) {
+                dbDeleteOtherWork(work.id).catch((err) =>
+                    console.error('Failed to delete work from Supabase:', err),
+                );
+            }
         }
     };
 

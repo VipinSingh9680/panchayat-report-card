@@ -4,6 +4,11 @@ import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Save, Upload, X } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
+import {
+    saveSettings as dbSaveSettings,
+    uploadImage,
+    isSupabaseConfigured,
+} from '@/lib/supabase-data';
 import type { PanchayatSettings } from '@/lib/types';
 
 interface FormData {
@@ -44,6 +49,8 @@ export default function SettingsForm(): React.JSX.Element {
     const { settings, setSettings } = useAppStore();
     const [form, setForm] = useState<FormData>(settingsToForm(settings));
     const [saved, setSaved] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [photoFile, setPhotoFile] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(
         settings.representative_photo_url
     );
@@ -59,6 +66,7 @@ export default function SettingsForm(): React.JSX.Element {
         if (!file) return;
         const url = URL.createObjectURL(file);
         setPhotoPreview(url);
+        setPhotoFile(file);
         setForm((prev) => ({ ...prev, representative_photo_url: url }));
         setSaved(false);
     }, []);
@@ -78,8 +86,20 @@ export default function SettingsForm(): React.JSX.Element {
         setSaved(false);
     };
 
-    const handleSubmit = (e: React.FormEvent): void => {
+    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
+        setSaving(true);
+
+        let photoUrl = form.representative_photo_url || null;
+
+        if (isSupabaseConfigured() && photoFile) {
+            try {
+                photoUrl = await uploadImage(photoFile, 'settings');
+            } catch (err) {
+                console.error('Failed to upload photo:', err);
+            }
+        }
+
         const updated: PanchayatSettings = {
             ...settings,
             panchayat_name_hi: form.panchayat_name_hi,
@@ -92,13 +112,24 @@ export default function SettingsForm(): React.JSX.Element {
             state_en: form.state_en,
             representative_name_hi: form.representative_name_hi || null,
             representative_name_en: form.representative_name_en || null,
-            representative_photo_url: form.representative_photo_url || null,
+            representative_photo_url: photoUrl,
             tenure_start: form.tenure_start ? parseInt(form.tenure_start, 10) : null,
             tenure_end: form.tenure_end ? parseInt(form.tenure_end, 10) : null,
             updated_at: new Date().toISOString(),
         };
         setSettings(updated);
+
+        if (isSupabaseConfigured()) {
+            try {
+                await dbSaveSettings(updated);
+            } catch (err) {
+                console.error('Failed to save settings to Supabase:', err);
+            }
+        }
+
+        setSaving(false);
         setSaved(true);
+        setPhotoFile(null);
         setTimeout(() => setSaved(false), 3000);
     };
 

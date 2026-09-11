@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminSidebar from '@/components/admin/AdminSidebar';
+import { useAppStore } from '@/lib/store';
 import { Lock } from 'lucide-react';
 
 const DEMO_EMAIL = 'admin@demo.com';
@@ -16,6 +17,14 @@ export default function AdminLayout({
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const loadFromSupabase = useAppStore((s) => s.loadFromSupabase);
+    const dataLoaded = useAppStore((s) => s.dataLoaded);
+
+    useEffect(() => {
+        if (!dataLoaded) {
+            loadFromSupabase();
+        }
+    }, [dataLoaded, loadFromSupabase]);
 
     const handleLogin = (e: React.FormEvent): void => {
         e.preventDefault();

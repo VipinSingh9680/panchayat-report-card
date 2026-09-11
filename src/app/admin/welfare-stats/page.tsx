@@ -3,6 +3,11 @@
 import React, { useState } from 'react';
 import { Plus, Edit2, Trash2, Save, X, ArrowUpDown } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
+import {
+    saveWelfareStat as dbSaveWelfareStat,
+    deleteWelfareStat as dbDeleteWelfareStat,
+    isSupabaseConfigured,
+} from '@/lib/supabase-data';
 import type { WelfareStat } from '@/lib/types';
 
 interface FormData {
@@ -84,14 +89,23 @@ export default function WelfareStatsPage(): React.JSX.Element {
         const count = parseInt(form.count, 10);
 
         if (editingId) {
-            updateWelfareStat(editingId, {
+            const updates = {
                 label_hi: form.label_hi.trim(),
                 label_en: form.label_en.trim(),
                 icon: form.icon,
                 count,
                 unit_hi: form.unit_hi.trim(),
                 unit_en: form.unit_en.trim(),
-            });
+            };
+            updateWelfareStat(editingId, updates);
+            if (isSupabaseConfigured()) {
+                const existing = welfareStats.find((ws) => ws.id === editingId);
+                if (existing) {
+                    dbSaveWelfareStat({ ...existing, ...updates }).catch((err) =>
+                        console.error('Failed to update welfare stat:', err),
+                    );
+                }
+            }
         } else {
             const maxOrder = welfareStats.reduce((max, ws) => Math.max(max, ws.sort_order), 0);
             const newStat: WelfareStat = {
@@ -105,6 +119,11 @@ export default function WelfareStatsPage(): React.JSX.Element {
                 sort_order: maxOrder + 1,
             };
             addWelfareStat(newStat);
+            if (isSupabaseConfigured()) {
+                dbSaveWelfareStat(newStat).catch((err) =>
+                    console.error('Failed to save welfare stat:', err),
+                );
+            }
         }
         resetForm();
     };
@@ -112,6 +131,11 @@ export default function WelfareStatsPage(): React.JSX.Element {
     const handleDelete = (stat: WelfareStat): void => {
         if (window.confirm(`Delete "${stat.label_hi}"? This cannot be undone.`)) {
             deleteWelfareStat(stat.id);
+            if (isSupabaseConfigured()) {
+                dbDeleteWelfareStat(stat.id).catch((err) =>
+                    console.error('Failed to delete welfare stat:', err),
+                );
+            }
         }
     };
 

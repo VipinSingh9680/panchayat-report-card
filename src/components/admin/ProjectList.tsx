@@ -3,6 +3,10 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
+import {
+    deleteProject as dbDeleteProject,
+    isSupabaseConfigured,
+} from '@/lib/supabase-data';
 import type { Project } from '@/lib/types';
 
 interface ProjectListProps {
@@ -53,6 +57,11 @@ export default function ProjectList({ onEdit }: ProjectListProps): React.JSX.Ele
     const handleDelete = (project: Project): void => {
         if (window.confirm(`Delete "${project.title_hi}"? This cannot be undone.`)) {
             deleteProject(project.id);
+            if (isSupabaseConfigured()) {
+                dbDeleteProject(project.id).catch((err) =>
+                    console.error('Failed to delete project from Supabase:', err),
+                );
+            }
         }
     };
 

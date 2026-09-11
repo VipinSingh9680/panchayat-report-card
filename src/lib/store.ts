@@ -13,6 +13,7 @@ import {
     sampleOtherWorks,
     sampleWelfareStats,
 } from './sample-data';
+import { isSupabaseConfigured, fetchAllData } from './supabase-data';
 
 interface AppState {
     settings: PanchayatSettings;
@@ -21,7 +22,9 @@ interface AppState {
     otherWorks: OtherWork[];
     welfareStats: WelfareStat[];
     isLoading: boolean;
+    dataLoaded: boolean;
 
+    loadFromSupabase: () => Promise<void>;
     setSettings: (settings: PanchayatSettings) => void;
     setCategories: (categories: Category[]) => void;
     setProjects: (projects: Project[]) => void;
@@ -49,6 +52,37 @@ export const useAppStore = create<AppState>((set, get) => ({
     otherWorks: sampleOtherWorks,
     welfareStats: sampleWelfareStats,
     isLoading: false,
+    dataLoaded: false,
+
+    loadFromSupabase: async () => {
+        if (get().dataLoaded) {
+            return;
+        }
+        if (!isSupabaseConfigured()) {
+            set({ dataLoaded: true });
+            return;
+        }
+
+        set({ isLoading: true });
+        try {
+            const data = await fetchAllData();
+            set({
+                settings: data.settings ?? sampleSettings,
+                categories: data.categories,
+                projects: data.projects,
+                otherWorks: data.otherWorks,
+                welfareStats: data.welfareStats,
+                dataLoaded: true,
+                isLoading: false,
+            });
+        } catch (error) {
+            console.error(
+                'Failed to load data from Supabase, using sample data:',
+                error,
+            );
+            set({ dataLoaded: true, isLoading: false });
+        }
+    },
 
     setSettings: (settings) => set({ settings }),
     setCategories: (categories) => set({ categories }),
@@ -72,7 +106,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     setOtherWorks: (works) => set({ otherWorks: works }),
 
     addOtherWork: (work) =>
-        set((state) => ({ otherWorks: [...state.otherWorks, work] })),
+        set((state) => ({
+            otherWorks: [...state.otherWorks, work],
+        })),
 
     updateOtherWork: (id, updates) =>
         set((state) => ({
@@ -89,7 +125,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     setWelfareStats: (stats) => set({ welfareStats: stats }),
 
     addWelfareStat: (stat) =>
-        set((state) => ({ welfareStats: [...state.welfareStats, stat] })),
+        set((state) => ({
+            welfareStats: [...state.welfareStats, stat],
+        })),
 
     updateWelfareStat: (id, updates) =>
         set((state) => ({
@@ -116,6 +154,8 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     getProjectsByCategory: (categoryId) =>
         get().projects.filter(
-            (p) => p.status === 'published' && p.category_id === categoryId
+            (p) =>
+                p.status === 'published' &&
+                p.category_id === categoryId
         ),
 }));

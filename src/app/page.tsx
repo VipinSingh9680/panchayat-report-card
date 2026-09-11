@@ -6,6 +6,17 @@ import { useAppStore } from '@/lib/store';
 import { getLocalizedField, calculateDashboardStats, getWhatsAppShareUrl } from '@/lib/utils';
 import type { Project, Language } from '@/lib/types';
 
+/* ── Load data from Supabase on mount ── */
+function useSupabaseLoader(): void {
+    const loadFromSupabase = useAppStore((s) => s.loadFromSupabase);
+    const dataLoaded = useAppStore((s) => s.dataLoaded);
+    useEffect(() => {
+        if (!dataLoaded) {
+            loadFromSupabase();
+        }
+    }, [dataLoaded, loadFromSupabase]);
+}
+
 /* ── Animated Counter ── */
 function Counter({ end, suffix = '' }: { end: number; suffix?: string }): React.JSX.Element {
     const [count, setCount] = useState(0);
@@ -53,8 +64,9 @@ function FadeIn({ children, delay = 0, className = '' }: { children: React.React
 
 /* ══════════════ MAIN PAGE ══════════════ */
 export default function ReportCard(): React.JSX.Element {
+    useSupabaseLoader();
     const [lang, setLang] = useState<Language>('hi');
-    const { settings, projects, categories, otherWorks, welfareStats } = useAppStore();
+    const { settings, projects, categories, otherWorks, welfareStats, isLoading } = useAppStore();
 
     const published = projects.filter((p) => p.status === 'published');
     const publishedOther = otherWorks.filter((w) => w.status === 'published');

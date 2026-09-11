@@ -3,6 +3,11 @@
 import React, { useState } from 'react';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
+import {
+    saveProject as dbSaveProject,
+    uploadImage,
+    isSupabaseConfigured,
+} from '@/lib/supabase-data';
 import ProjectList from '@/components/admin/ProjectList';
 import ProjectForm from '@/components/admin/ProjectForm';
 import type { Project } from '@/lib/types';
@@ -13,18 +18,46 @@ export default function ProjectsPage(): React.JSX.Element {
     const { addProject, updateProject } = useAppStore();
     const [view, setView] = useState<ViewMode>('list');
     const [editingProject, setEditingProject] = useState<Project | undefined>(undefined);
+    const [saving, setSaving] = useState(false);
 
     const handleEdit = (project: Project): void => {
         setEditingProject(project);
         setView('edit');
     };
 
-    const handleSave = (project: Project): void => {
+    const handleSave = async (project: Project): Promise<void> => {
         if (view === 'edit' && editingProject) {
             updateProject(editingProject.id, project);
         } else {
             addProject(project);
         }
+
+        if (isSupabaseConfigured()) {
+            setSaving(true);
+            try {
+                const uploadedImages = await Promise.all(
+                    (project.images ?? []).map(async (img) => {
+                        if (img.image_url.startsWith('blob:')) {
+                            const resp = await fetch(img.image_url);
+                            const blob = await resp.blob();
+                            const file = new File([blob], `${img.image_type}-${Date.now()}.jpg`, {
+                                type: blob.type,
+                            });
+                            const url = await uploadImage(file, 'projects');
+                            return { ...img, image_url: url };
+                        }
+                        return img;
+                    }),
+                );
+                const { images: _, ...projectData } = project;
+                await dbSaveProject(projectData, uploadedImages);
+            } catch (err) {
+                console.error('Failed to save project to Supabase:', err);
+            } finally {
+                setSaving(false);
+            }
+        }
+
         setView('list');
         setEditingProject(undefined);
     };
