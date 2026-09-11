@@ -62,7 +62,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     dataLoaded: false,
 
     loadFromSupabase: async () => {
-        if (get().dataLoaded) {
+        const isAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+
+        if (get().dataLoaded && !isAdmin) {
             return;
         }
         if (!isSupabaseConfigured()) {
@@ -72,7 +74,6 @@ export const useAppStore = create<AppState>((set, get) => ({
 
         set({ isLoading: true });
         try {
-            const isAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
             const data = isAdmin ? await fetchAllData() : await fetchCachedData();
             set({
                 settings: data.settings ?? sampleSettings,
