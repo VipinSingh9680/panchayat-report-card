@@ -164,14 +164,33 @@ export const saveProject = async (
     project: Omit<Project, 'images'>,
     images: ProjectImage[],
 ): Promise<Project> => {
-    const isExisting = !project.id.startsWith('p-');
+    const dbFields = {
+        title_hi: project.title_hi,
+        title_en: project.title_en,
+        description_hi: project.description_hi,
+        description_en: project.description_en,
+        category_id: project.category_id,
+        ward: project.ward,
+        location_hi: project.location_hi,
+        location_en: project.location_en,
+        completion_year: project.completion_year,
+        completion_date: project.completion_date,
+        cost_lakhs: project.cost_lakhs,
+        scheme: project.scheme,
+        department: project.department,
+        status: project.status,
+        is_featured: project.is_featured,
+        slug: project.slug,
+        updated_at: new Date().toISOString(),
+    };
 
+    const isExisting = !project.id.startsWith('p-');
     let saved: Project;
 
     if (isExisting) {
         const { data, error } = await supabase
             .from('projects')
-            .update({ ...project, updated_at: new Date().toISOString() })
+            .update(dbFields)
             .eq('id', project.id)
             .select()
             .single();
@@ -181,10 +200,9 @@ export const saveProject = async (
         }
         saved = data as Project;
     } else {
-        const { id: _id, ...projectWithoutId } = project;
         const { data, error } = await supabase
             .from('projects')
-            .insert({ ...projectWithoutId, updated_at: new Date().toISOString() })
+            .insert(dbFields)
             .select()
             .single();
 
@@ -204,10 +222,15 @@ export const saveProject = async (
     }
 
     if (images.length > 0) {
-        const rows = images.map((img) => {
-            const { id: _imgId, ...imgWithoutId } = img;
-            return { ...imgWithoutId, project_id: saved.id };
-        });
+        const rows = images.map((img) => ({
+            project_id: saved.id,
+            image_url: img.image_url,
+            image_type: img.image_type,
+            caption: img.caption,
+            sort_order: img.sort_order,
+            is_primary: img.is_primary,
+            ai_suggested_type: img.ai_suggested_type,
+        }));
         const { error: insertError } = await supabase
             .from('project_images')
             .insert(rows);
@@ -228,18 +251,54 @@ export const deleteProject = async (id: string): Promise<void> => {
     }
 };
 
+export const updateProjectStatus = async (id: string, status: string): Promise<void> => {
+    const { error } = await supabase
+        .from('projects')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', id);
+
+    if (error) {
+        throw new Error(`Failed to update project status: ${error.message}`);
+    }
+};
+
+export const updateOtherWorkStatus = async (id: string, status: string): Promise<void> => {
+    const { error } = await supabase
+        .from('other_works')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', id);
+
+    if (error) {
+        throw new Error(`Failed to update other work status: ${error.message}`);
+    }
+};
+
 export const saveOtherWork = async (
     work: Omit<OtherWork, 'images'>,
     images: OtherWorkImage[],
 ): Promise<OtherWork> => {
-    const isExisting = !work.id.startsWith('ow-');
+    const dbFields = {
+        title_hi: work.title_hi,
+        title_en: work.title_en,
+        description_hi: work.description_hi,
+        description_en: work.description_en,
+        category: work.category,
+        ward: work.ward,
+        location_hi: work.location_hi,
+        location_en: work.location_en,
+        completion_date: work.completion_date,
+        status: work.status,
+        slug: work.slug,
+        updated_at: new Date().toISOString(),
+    };
 
+    const isExisting = !work.id.startsWith('ow-');
     let saved: OtherWork;
 
     if (isExisting) {
         const { data, error } = await supabase
             .from('other_works')
-            .update({ ...work, updated_at: new Date().toISOString() })
+            .update(dbFields)
             .eq('id', work.id)
             .select()
             .single();
@@ -249,10 +308,9 @@ export const saveOtherWork = async (
         }
         saved = data as OtherWork;
     } else {
-        const { id: _id, ...workWithoutId } = work;
         const { data, error } = await supabase
             .from('other_works')
-            .insert({ ...workWithoutId, updated_at: new Date().toISOString() })
+            .insert(dbFields)
             .select()
             .single();
 
@@ -272,10 +330,14 @@ export const saveOtherWork = async (
     }
 
     if (images.length > 0) {
-        const rows = images.map((img) => {
-            const { id: _imgId, ...imgWithoutId } = img;
-            return { ...imgWithoutId, other_work_id: saved.id };
-        });
+        const rows = images.map((img) => ({
+            other_work_id: saved.id,
+            image_url: img.image_url,
+            image_type: img.image_type,
+            caption: img.caption,
+            sort_order: img.sort_order,
+            is_primary: img.is_primary,
+        }));
         const { error: insertError } = await supabase
             .from('other_work_images')
             .insert(rows);

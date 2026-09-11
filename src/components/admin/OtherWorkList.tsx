@@ -5,6 +5,7 @@ import { Edit2, Trash2, Eye, EyeOff, Search } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import {
     deleteOtherWork as dbDeleteOtherWork,
+    updateOtherWorkStatus as dbUpdateOtherWorkStatus,
     isSupabaseConfigured,
 } from '@/lib/supabase-data';
 import type { OtherWork } from '@/lib/types';
@@ -34,10 +35,16 @@ export default function OtherWorkList({ onEdit }: OtherWorkListProps): React.JSX
     }, [otherWorks, search]);
 
     const handleToggle = (work: OtherWork): void => {
+        const newStatus = work.status === 'published' ? 'draft' : 'published';
         updateOtherWork(work.id, {
-            status: work.status === 'published' ? 'draft' : 'published',
+            status: newStatus,
             updated_at: new Date().toISOString(),
         });
+        if (isSupabaseConfigured()) {
+            dbUpdateOtherWorkStatus(work.id, newStatus).catch((err) =>
+                console.error('Failed to update work status in Supabase:', err),
+            );
+        }
     };
 
     const handleDelete = (work: OtherWork): void => {

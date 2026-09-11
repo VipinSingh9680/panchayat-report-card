@@ -5,6 +5,7 @@ import { Search, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
 import {
     deleteProject as dbDeleteProject,
+    updateProjectStatus as dbUpdateProjectStatus,
     isSupabaseConfigured,
 } from '@/lib/supabase-data';
 import type { Project } from '@/lib/types';
@@ -48,10 +49,16 @@ export default function ProjectList({ onEdit }: ProjectListProps): React.JSX.Ele
     };
 
     const handleTogglePublish = (project: Project): void => {
+        const newStatus = project.status === 'published' ? 'draft' : 'published';
         updateProject(project.id, {
-            status: project.status === 'published' ? 'draft' : 'published',
+            status: newStatus,
             updated_at: new Date().toISOString(),
         });
+        if (isSupabaseConfigured()) {
+            dbUpdateProjectStatus(project.id, newStatus).catch((err) =>
+                console.error('Failed to update project status in Supabase:', err),
+            );
+        }
     };
 
     const handleDelete = (project: Project): void => {
