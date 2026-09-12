@@ -42,6 +42,7 @@ export interface ComparisonItem {
     label_en: string;
     before_value: string;
     after_value: string;
+    max_value: string;
 }
 
 export interface Category {

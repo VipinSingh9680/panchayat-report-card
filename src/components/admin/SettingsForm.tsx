@@ -567,12 +567,14 @@ export default function SettingsForm(): React.JSX.Element {
                                     className='w-20 px-3 py-2 border border-red-200 bg-red-50 rounded-lg text-sm text-center' placeholder='Before' />
                                 <input value={c.after_value} onChange={(e) => { const next = [...comparisons]; next[i] = { ...next[i], after_value: e.target.value }; setComparisons(next); setSaved(false); }}
                                     className='w-20 px-3 py-2 border border-green-200 bg-green-50 rounded-lg text-sm text-center' placeholder='After' />
+                                <input value={c.max_value || ''} onChange={(e) => { const next = [...comparisons]; next[i] = { ...next[i], max_value: e.target.value }; setComparisons(next); setSaved(false); }}
+                                    className='w-20 px-3 py-2 border border-blue-200 bg-blue-50 rounded-lg text-sm text-center' placeholder='Max' title='Max value for bar scale (e.g. 20)' />
                                 <button type='button' onClick={() => { setComparisons(comparisons.filter((_, j) => j !== i)); setSaved(false); }}
                                     className='px-2 py-2 text-red-500 hover:bg-red-50 rounded-lg text-sm'>✕</button>
                             </div>
                         ))}
                         <button type='button'
-                            onClick={() => { setComparisons([...comparisons, { icon: '🏛️', label_hi: '', label_en: '', before_value: '0', after_value: '' }]); setSaved(false); }}
+                            onClick={() => { setComparisons([...comparisons, { icon: '🏛️', label_hi: '', label_en: '', before_value: '0', after_value: '', max_value: '' }]); setSaved(false); }}
                             className='text-sm text-orange-600 hover:text-orange-700 font-medium mt-1'>
                             + Add Comparison
                         </button>

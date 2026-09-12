@@ -536,9 +536,10 @@ export default function ReportCard(): React.JSX.Element {
                             {settings.comparisons.map((c, i) => {
                                 const beforeNum = parseFloat(c.before_value) || 0;
                                 const afterNum = parseFloat(c.after_value) || 0;
-                                const globalMax = Math.max(...settings.comparisons.map((x) => Math.max(parseFloat(x.before_value) || 0, parseFloat(x.after_value) || 0)), 1);
-                                const beforeW = beforeNum === 0 ? 0 : Math.max((beforeNum / globalMax) * 100, 8);
-                                const afterW = afterNum === 0 ? 0 : Math.max((afterNum / globalMax) * 100, 8);
+                                const customMax = parseFloat(c.max_value) || 0;
+                                const itemMax = customMax > 0 ? customMax : Math.max(beforeNum, afterNum, 1);
+                                const beforeW = beforeNum === 0 ? 0 : Math.max((beforeNum / itemMax) * 100, 8);
+                                const afterW = afterNum === 0 ? 0 : Math.max((afterNum / itemMax) * 100, 8);
                                 const label = lang === 'hi' ? (c.label_hi || c.label_en) : (c.label_en || c.label_hi);
                                 return (
                                     <FadeIn key={i} delay={i * 80}>
