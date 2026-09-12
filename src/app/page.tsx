@@ -540,8 +540,8 @@ export default function ReportCard(): React.JSX.Element {
                                         {/* Badge */}
                                         {isNew && (
                                             <div className='absolute top-2 right-2'>
-                                                <span className='bg-amber-400 text-amber-900 text-[9px] font-black px-2 py-0.5 rounded-full'>
-                                                    🆕 {t('नया', 'NEW')}
+                                                <span className='bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm'>
+                                                    ✅ {t('नया', 'NEW')}
                                                 </span>
                                             </div>
                                         )}
@@ -560,8 +560,8 @@ export default function ReportCard(): React.JSX.Element {
                                         <p className='text-sm font-bold text-slate-700 mt-2 leading-tight'>{label}</p>
                                         {/* Before context */}
                                         {isNew ? (
-                                            <p className='text-[10px] text-emerald-600 font-semibold mt-1.5 bg-emerald-50 rounded-full px-2 py-0.5 inline-block'>
-                                                ✅ {t('पहले नहीं था', 'Didn\'t exist before')}
+                                            <p className='text-[10px] text-white font-bold mt-2 bg-emerald-500 rounded-full px-3 py-1 inline-block shadow-sm'>
+                                                ✨ {t('पहली बार बना', 'Built first time')}
                                             </p>
                                         ) : (
                                             <p className='text-[10px] text-slate-400 font-semibold mt-1.5'>
