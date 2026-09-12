@@ -9,7 +9,7 @@ import {
     uploadImage,
     isSupabaseConfigured,
 } from '@/lib/supabase-data';
-import type { PanchayatSettings, PromiseItem } from '@/lib/types';
+import type { PanchayatSettings, PromiseItem, ComparisonItem } from '@/lib/types';
 
 interface FormData {
     panchayat_name_hi: string;
@@ -132,6 +132,7 @@ export default function SettingsForm(): React.JSX.Element {
     const [spousePhotoFile, setSpousePhotoFile] = useState<File | null>(null);
     const [villagePhotoFile, setVillagePhotoFile] = useState<File | null>(null);
     const [promises, setPromises] = useState<PromiseItem[]>(settings.promises ?? []);
+    const [comparisons, setComparisons] = useState<ComparisonItem[]>(settings.comparisons ?? []);
     const [photoPreview, setPhotoPreview] = useState<string | null>(
         settings.representative_photo_url,
     );
@@ -145,6 +146,7 @@ export default function SettingsForm(): React.JSX.Element {
     useEffect(() => {
         setForm(settingsToForm(settings));
         setPromises(settings.promises ?? []);
+        setComparisons(settings.comparisons ?? []);
         setPhotoPreview(settings.representative_photo_url);
         setSpousePhotoPreview(settings.spouse_photo_url);
         setVillagePhotoPreview(settings.village_photo_url);
@@ -276,6 +278,7 @@ export default function SettingsForm(): React.JSX.Element {
             campaign_message_hi: form.campaign_message_hi || null,
             campaign_message_en: form.campaign_message_en || null,
             promises,
+            comparisons,
             show_campaign: form.show_campaign,
             updated_at: new Date().toISOString(),
         };
@@ -545,6 +548,33 @@ export default function SettingsForm(): React.JSX.Element {
                             onClick={() => { setPromises([...promises, { icon: '✅', text_hi: '', text_en: '' }]); setSaved(false); }}
                             className='text-sm text-orange-600 hover:text-orange-700 font-medium mt-1'>
                             + Add Promise
+                        </button>
+                    </div>
+
+                    {/* Before vs After Comparisons */}
+                    <div className='border-t border-slate-200 pt-4'>
+                        <h4 className='text-sm font-semibold text-slate-700 mb-1'>📊 Before vs After / पहले और अब</h4>
+                        <p className='text-xs text-slate-400 mb-3'>Compare what was there before your tenure and what is there now.</p>
+                        {comparisons.map((c, i) => (
+                            <div key={i} className='flex gap-2 mb-2 items-start flex-wrap'>
+                                <input value={c.icon} onChange={(e) => { const next = [...comparisons]; next[i] = { ...next[i], icon: e.target.value }; setComparisons(next); setSaved(false); }}
+                                    className='w-12 px-2 py-2 border border-slate-300 rounded-lg text-sm text-center' placeholder='🏛️' />
+                                <input value={c.label_hi} onChange={(e) => { const next = [...comparisons]; next[i] = { ...next[i], label_hi: e.target.value }; setComparisons(next); setSaved(false); }}
+                                    className='flex-1 min-w-[100px] px-3 py-2 border border-slate-300 rounded-lg text-sm' placeholder='Label Hindi' />
+                                <input value={c.label_en} onChange={(e) => { const next = [...comparisons]; next[i] = { ...next[i], label_en: e.target.value }; setComparisons(next); setSaved(false); }}
+                                    className='flex-1 min-w-[100px] px-3 py-2 border border-slate-300 rounded-lg text-sm' placeholder='Label English' />
+                                <input value={c.before_value} onChange={(e) => { const next = [...comparisons]; next[i] = { ...next[i], before_value: e.target.value }; setComparisons(next); setSaved(false); }}
+                                    className='w-20 px-3 py-2 border border-red-200 bg-red-50 rounded-lg text-sm text-center' placeholder='Before' />
+                                <input value={c.after_value} onChange={(e) => { const next = [...comparisons]; next[i] = { ...next[i], after_value: e.target.value }; setComparisons(next); setSaved(false); }}
+                                    className='w-20 px-3 py-2 border border-green-200 bg-green-50 rounded-lg text-sm text-center' placeholder='After' />
+                                <button type='button' onClick={() => { setComparisons(comparisons.filter((_, j) => j !== i)); setSaved(false); }}
+                                    className='px-2 py-2 text-red-500 hover:bg-red-50 rounded-lg text-sm'>✕</button>
+                            </div>
+                        ))}
+                        <button type='button'
+                            onClick={() => { setComparisons([...comparisons, { icon: '🏛️', label_hi: '', label_en: '', before_value: '0', after_value: '' }]); setSaved(false); }}
+                            className='text-sm text-orange-600 hover:text-orange-700 font-medium mt-1'>
+                            + Add Comparison
                         </button>
                     </div>
                 </div>

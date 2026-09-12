@@ -24,6 +24,7 @@ export interface PanchayatSettings {
     campaign_message_hi: string | null;
     campaign_message_en: string | null;
     promises: PromiseItem[];
+    comparisons: ComparisonItem[];
     show_campaign: boolean;
     created_at: string;
     updated_at: string;
@@ -33,6 +34,14 @@ export interface PromiseItem {
     text_hi: string;
     text_en: string;
     icon: string;
+}
+
+export interface ComparisonItem {
+    icon: string;
+    label_hi: string;
+    label_en: string;
+    before_value: string;
+    after_value: string;
 }
 
 export interface Category {

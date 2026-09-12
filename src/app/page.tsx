@@ -756,6 +756,64 @@ export default function ReportCard(): React.JSX.Element {
                 </div>
             )}
 
+            {/* ════════ BEFORE vs AFTER COMPARISON ════════ */}
+            {settings.comparisons && settings.comparisons.length > 0 && (
+                <div id='sec-compare' className='max-w-5xl mx-auto px-6 mb-10 scroll-mt-16'>
+                    <FadeIn>
+                        <h2 className='text-2xl md:text-3xl font-black text-slate-900 text-center mb-2'>
+                            📊 {t('पहले और अब', 'Then vs Now')}
+                        </h2>
+                        <p className='text-slate-500 text-sm text-center mb-6'>
+                            {settings.tenure_start
+                                ? t(`${settings.tenure_start} से पहले और आज की तुलना`, `Comparison before ${settings.tenure_start} and today`)
+                                : t('पहले और आज की तुलना', 'Comparison of before and today')}
+                        </p>
+                    </FadeIn>
+                    <div className='grid grid-cols-1 gap-3'>
+                        {settings.comparisons.map((c, i) => {
+                            const beforeNum = parseFloat(c.before_value) || 0;
+                            const afterNum = parseFloat(c.after_value) || 0;
+                            const maxVal = Math.max(beforeNum, afterNum, 1);
+                            const beforePct = Math.max((beforeNum / maxVal) * 100, 4);
+                            const afterPct = Math.max((afterNum / maxVal) * 100, 4);
+                            const label = lang === 'hi' ? (c.label_hi || c.label_en) : (c.label_en || c.label_hi);
+                            return (
+                                <FadeIn key={i} delay={i * 80}>
+                                    <div className='bg-white rounded-2xl border border-slate-100 shadow-sm p-4'>
+                                        <div className='flex items-center gap-2 mb-3'>
+                                            <span className='text-2xl'>{c.icon}</span>
+                                            <span className='font-bold text-slate-800 text-sm'>{label}</span>
+                                        </div>
+                                        {/* Before bar */}
+                                        <div className='flex items-center gap-2 mb-2'>
+                                            <span className='text-[10px] font-bold text-red-400 w-10 text-right'>{t('पहले', 'Before')}</span>
+                                            <div className='flex-1 bg-slate-100 rounded-full h-7 overflow-hidden'>
+                                                <div
+                                                    className='h-full bg-gradient-to-r from-red-400 to-red-300 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
+                                                    style={{ width: `${beforePct}%` }}>
+                                                    <span className='text-white text-xs font-black drop-shadow-sm'>{c.before_value}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {/* After bar */}
+                                        <div className='flex items-center gap-2'>
+                                            <span className='text-[10px] font-bold text-emerald-500 w-10 text-right'>{t('अब', 'Now')}</span>
+                                            <div className='flex-1 bg-slate-100 rounded-full h-7 overflow-hidden'>
+                                                <div
+                                                    className='h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
+                                                    style={{ width: `${afterPct}%` }}>
+                                                    <span className='text-white text-xs font-black drop-shadow-sm'>{c.after_value}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </FadeIn>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             {/* ════════ ELECTION CAMPAIGN ════════ */}
             {settings.show_campaign && (
                 <div id='sec-campaign' className='max-w-5xl mx-auto px-6 mb-10 scroll-mt-16'>

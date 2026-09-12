@@ -26,6 +26,7 @@ export const sampleSettings: PanchayatSettings = {
     campaign_message_hi: null,
     campaign_message_en: null,
     promises: [],
+    comparisons: [],
     show_campaign: false,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

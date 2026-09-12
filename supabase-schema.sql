@@ -31,6 +31,7 @@ CREATE TABLE panchayat_settings (
     campaign_message_hi TEXT,
     campaign_message_en TEXT,
     promises JSONB DEFAULT '[]'::jsonb,
+    comparisons JSONB DEFAULT '[]'::jsonb,
     show_campaign BOOLEAN DEFAULT false,
     created_at TIMESTAMPTZ DEFAULT now(),
     updated_at TIMESTAMPTZ DEFAULT now()
