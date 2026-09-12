@@ -521,7 +521,7 @@ export default function ReportCard(): React.JSX.Element {
                 <div id='sec-compare' className='max-w-5xl mx-auto px-6 mb-8 scroll-mt-16'>
                     <FadeIn>
                         <h3 className='text-xl font-bold text-slate-800 text-center mb-1'>
-                            🏆 {t('विकास की उपलब्धियाँ', 'Development Achievements')}
+                            🏆 {t('गाँव में पहली बार', 'First Time in Village')}
                         </h3>
                         <p className='text-xs text-slate-400 text-center mb-4'>
                             {t('कार्यकाल में किए गए प्रमुख कार्य', 'Key work done during tenure')}
@@ -559,11 +559,7 @@ export default function ReportCard(): React.JSX.Element {
                                         {/* Label */}
                                         <p className='text-sm font-bold text-slate-700 mt-2 leading-tight'>{label}</p>
                                         {/* Before context */}
-                                        {isNew ? (
-                                            <p className='text-[10px] text-white font-bold mt-2 bg-emerald-500 rounded-full px-3 py-1 inline-block shadow-sm'>
-                                                ✨ {t('पहली बार बना', 'Built first time')}
-                                            </p>
-                                        ) : (
+                                        {!isNew && diff > 0 && (
                                             <p className='text-[10px] text-slate-400 font-semibold mt-1.5'>
                                                 {t('पहले', 'Before')}: {c.before_value} → {t('अब', 'Now')}: {c.after_value}
                                             </p>
