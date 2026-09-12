@@ -392,13 +392,13 @@ export default function ReportCard(): React.JSX.Element {
                             src={settings.village_photo_url}
                             alt='Village'
                             fill
-                            className='object-cover opacity-50'
+                            className='object-cover opacity-[0.65]'
                             sizes='100vw'
                             priority
                         />
                     </div>
                 )}
-                <div className='absolute inset-0 bg-gradient-to-b from-emerald-900/50 via-teal-900/30 to-emerald-900/60' />
+                <div className='absolute inset-0 bg-gradient-to-b from-emerald-900/40 via-teal-900/20 to-emerald-900/50' />
 
                 <div className='relative max-w-5xl mx-auto px-6 pt-14 pb-24 text-center text-white'>
                     {/* Tenure period at top */}
@@ -516,7 +516,7 @@ export default function ReportCard(): React.JSX.Element {
 
             {/* ════════ BEFORE vs AFTER COMPARISON ════════ */}
             {settings.comparisons && settings.comparisons.length > 0 && (
-                <div id='sec-compare' className='max-w-5xl mx-auto px-6 mb-6 scroll-mt-16'>
+                <div id='sec-compare' className='max-w-md mx-auto px-6 mb-6 scroll-mt-16'>
                     <FadeIn>
                         <h3 className='text-xl font-bold text-slate-800 text-center mb-1'>
                             📊 {t('पहले और अब', 'Then vs Now')}
