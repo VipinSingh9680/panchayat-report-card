@@ -537,8 +537,8 @@ export default function ReportCard(): React.JSX.Element {
                                 const beforeNum = parseFloat(c.before_value) || 0;
                                 const afterNum = parseFloat(c.after_value) || 0;
                                 const globalMax = Math.max(...settings.comparisons.map((x) => Math.max(parseFloat(x.before_value) || 0, parseFloat(x.after_value) || 0)), 1);
-                                const beforeW = Math.max((beforeNum / globalMax) * 100, 4);
-                                const afterW = Math.max((afterNum / globalMax) * 100, 4);
+                                const beforeW = beforeNum === 0 ? 0 : Math.max((beforeNum / globalMax) * 100, 8);
+                                const afterW = afterNum === 0 ? 0 : Math.max((afterNum / globalMax) * 100, 8);
                                 const label = lang === 'hi' ? (c.label_hi || c.label_en) : (c.label_en || c.label_hi);
                                 return (
                                     <FadeIn key={i} delay={i * 80}>
@@ -550,22 +550,34 @@ export default function ReportCard(): React.JSX.Element {
                                             {/* After bar (now) — shown first */}
                                             <div className='flex items-center gap-2 mb-1'>
                                                 <span className='text-[10px] text-slate-400 font-semibold w-8 text-right'>{t('अब', 'Now')}</span>
-                                                <div className='flex-1 bg-emerald-50 rounded-full h-5 overflow-hidden'>
-                                                    <div className='h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
-                                                        style={{ width: `${afterW}%`, minWidth: '28px' }}>
-                                                        <span className='text-white text-[10px] font-black'>{c.after_value}</span>
+                                                {afterNum === 0 ? (
+                                                    <div className='flex-1 flex items-center'>
+                                                        <span className='text-[11px] font-black text-emerald-600 ml-1'>0</span>
                                                     </div>
-                                                </div>
+                                                ) : (
+                                                    <div className='flex-1 bg-emerald-50 rounded-full h-6 overflow-hidden'>
+                                                        <div className='h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
+                                                            style={{ width: `${afterW}%`, minWidth: '32px' }}>
+                                                            <span className='text-white text-[11px] font-black'>{c.after_value}</span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                             {/* Before bar — shown below */}
                                             <div className='flex items-center gap-2'>
                                                 <span className='text-[10px] text-slate-400 font-semibold w-8 text-right'>{t('पहले', 'Before')}</span>
-                                                <div className='flex-1 bg-red-50 rounded-full h-5 overflow-hidden'>
-                                                    <div className='h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
-                                                        style={{ width: `${beforeW}%`, minWidth: '28px' }}>
-                                                        <span className='text-white text-[10px] font-black'>{c.before_value}</span>
+                                                {beforeNum === 0 ? (
+                                                    <div className='flex-1 flex items-center'>
+                                                        <span className='text-[11px] font-black text-red-500 ml-1'>0</span>
                                                     </div>
-                                                </div>
+                                                ) : (
+                                                    <div className='flex-1 bg-red-50 rounded-full h-6 overflow-hidden'>
+                                                        <div className='h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
+                                                            style={{ width: `${beforeW}%`, minWidth: '32px' }}>
+                                                            <span className='text-white text-[11px] font-black'>{c.before_value}</span>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </FadeIn>
