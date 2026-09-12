@@ -758,58 +758,49 @@ export default function ReportCard(): React.JSX.Element {
 
             {/* ════════ BEFORE vs AFTER COMPARISON ════════ */}
             {settings.comparisons && settings.comparisons.length > 0 && (
-                <div id='sec-compare' className='max-w-5xl mx-auto px-6 mb-10 scroll-mt-16'>
+                <div id='sec-compare' className='max-w-5xl mx-auto px-6 mb-8 scroll-mt-16'>
                     <FadeIn>
-                        <h2 className='text-2xl md:text-3xl font-black text-slate-900 text-center mb-2'>
+                        <h2 className='text-xl font-black text-slate-900 text-center mb-1'>
                             📊 {t('पहले और अब', 'Then vs Now')}
                         </h2>
-                        <p className='text-slate-500 text-sm text-center mb-6'>
-                            {settings.tenure_start
-                                ? t(`${settings.tenure_start} से पहले और आज की तुलना`, `Comparison before ${settings.tenure_start} and today`)
-                                : t('पहले और आज की तुलना', 'Comparison of before and today')}
-                        </p>
+                        <div className='flex justify-center gap-4 text-[10px] font-bold mb-4'>
+                            <span className='flex items-center gap-1'><span className='w-3 h-3 rounded-sm bg-red-400 inline-block' /> {t('पहले', 'Before')}</span>
+                            <span className='flex items-center gap-1'><span className='w-3 h-3 rounded-sm bg-emerald-500 inline-block' /> {t('अब', 'Now')}</span>
+                        </div>
                     </FadeIn>
-                    <div className='grid grid-cols-1 gap-3'>
-                        {settings.comparisons.map((c, i) => {
-                            const beforeNum = parseFloat(c.before_value) || 0;
-                            const afterNum = parseFloat(c.after_value) || 0;
-                            const maxVal = Math.max(beforeNum, afterNum, 1);
-                            const beforePct = Math.max((beforeNum / maxVal) * 100, 4);
-                            const afterPct = Math.max((afterNum / maxVal) * 100, 4);
-                            const label = lang === 'hi' ? (c.label_hi || c.label_en) : (c.label_en || c.label_hi);
-                            return (
-                                <FadeIn key={i} delay={i * 80}>
-                                    <div className='bg-white rounded-2xl border border-slate-100 shadow-sm p-4'>
-                                        <div className='flex items-center gap-2 mb-3'>
-                                            <span className='text-2xl'>{c.icon}</span>
-                                            <span className='font-bold text-slate-800 text-sm'>{label}</span>
-                                        </div>
-                                        {/* Before bar */}
-                                        <div className='flex items-center gap-2 mb-2'>
-                                            <span className='text-[10px] font-bold text-red-400 w-10 text-right'>{t('पहले', 'Before')}</span>
-                                            <div className='flex-1 bg-slate-100 rounded-full h-7 overflow-hidden'>
-                                                <div
-                                                    className='h-full bg-gradient-to-r from-red-400 to-red-300 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
-                                                    style={{ width: `${beforePct}%` }}>
-                                                    <span className='text-white text-xs font-black drop-shadow-sm'>{c.before_value}</span>
-                                                </div>
+                    <div className='bg-white rounded-2xl border border-slate-100 shadow-sm p-4 overflow-x-auto'>
+                        <div className='flex justify-around items-end gap-2 min-w-0' style={{ minHeight: '140px' }}>
+                            {settings.comparisons.map((c, i) => {
+                                const beforeNum = parseFloat(c.before_value) || 0;
+                                const afterNum = parseFloat(c.after_value) || 0;
+                                const globalMax = Math.max(...settings.comparisons.map((x) => Math.max(parseFloat(x.before_value) || 0, parseFloat(x.after_value) || 0)), 1);
+                                const beforeH = Math.max((beforeNum / globalMax) * 100, 6);
+                                const afterH = Math.max((afterNum / globalMax) * 100, 6);
+                                const label = lang === 'hi' ? (c.label_hi || c.label_en) : (c.label_en || c.label_hi);
+                                return (
+                                    <div key={i} className='flex flex-col items-center flex-1 min-w-[50px] max-w-[80px]'>
+                                        <div className='flex items-end gap-1 h-[100px]'>
+                                            {/* Before bar */}
+                                            <div className='flex flex-col items-center'>
+                                                <span className='text-[10px] font-black text-red-500 mb-0.5'>{c.before_value}</span>
+                                                <div className='w-5 rounded-t-md bg-gradient-to-t from-red-500 to-red-300 transition-all duration-700'
+                                                    style={{ height: `${beforeH}%` }} />
+                                            </div>
+                                            {/* After bar */}
+                                            <div className='flex flex-col items-center'>
+                                                <span className='text-[10px] font-black text-emerald-600 mb-0.5'>{c.after_value}</span>
+                                                <div className='w-5 rounded-t-md bg-gradient-to-t from-emerald-600 to-emerald-400 transition-all duration-700'
+                                                    style={{ height: `${afterH}%` }} />
                                             </div>
                                         </div>
-                                        {/* After bar */}
-                                        <div className='flex items-center gap-2'>
-                                            <span className='text-[10px] font-bold text-emerald-500 w-10 text-right'>{t('अब', 'Now')}</span>
-                                            <div className='flex-1 bg-slate-100 rounded-full h-7 overflow-hidden'>
-                                                <div
-                                                    className='h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
-                                                    style={{ width: `${afterPct}%` }}>
-                                                    <span className='text-white text-xs font-black drop-shadow-sm'>{c.after_value}</span>
-                                                </div>
-                                            </div>
+                                        <div className='mt-1.5 text-center'>
+                                            <span className='text-lg block leading-none'>{c.icon}</span>
+                                            <span className='text-[9px] font-bold text-slate-600 leading-tight block mt-0.5'>{label}</span>
                                         </div>
                                     </div>
-                                </FadeIn>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             )}
