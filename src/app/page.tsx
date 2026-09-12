@@ -572,21 +572,6 @@ export default function ReportCard(): React.JSX.Element {
                 </div>
             )}
 
-            {/* Category Chips */}
-            <div className='max-w-5xl mx-auto px-6 mb-10'>
-                <FadeIn>
-                    <div className='flex flex-wrap gap-2 justify-center'>
-                        {stats.categoryStats.map((cat) => (
-                            <span key={cat.name_hi} className='inline-flex items-center gap-1.5 bg-white px-4 py-2 rounded-xl text-sm shadow-sm border border-slate-100'>
-                                <span className='text-lg'>{cat.icon}</span>
-                                <span className='text-slate-700 font-medium'>{lang === 'hi' ? cat.name_hi : cat.name_en}</span>
-                                <span className='bg-emerald-100 text-emerald-700 text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center'>{cat.count}</span>
-                            </span>
-                        ))}
-                    </div>
-                </FadeIn>
-            </div>
-
             {/* ════════ PROJECTS — Sticky FY tabs + Accordion ════════ */}
             <div id='sec-projects' className='max-w-5xl mx-auto px-6 mb-10 scroll-mt-16'>
                 <FadeIn>
