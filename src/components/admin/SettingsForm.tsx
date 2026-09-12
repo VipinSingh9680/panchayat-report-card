@@ -555,10 +555,14 @@ export default function SettingsForm(): React.JSX.Element {
                     <div className='border-t border-slate-200 pt-4'>
                         <h4 className='text-sm font-semibold text-slate-700 mb-1'>📊 Before vs After / पहले और अब</h4>
                         <p className='text-xs text-slate-400 mb-3'>Compare what was there before your tenure and what is there now.</p>
+                        <div className='bg-slate-50 rounded-lg p-2 mb-3'>
+                            <p className='text-[10px] text-slate-500'>💡 <strong>Icon</strong> = emoji shown on card (e.g. 🏛️ 🛣️ 💧 🚽 💡 🏫 🌳 🏘️ ⚡ 🪪 👴 🏠)</p>
+                            <p className='text-[10px] text-slate-500'>💡 <strong>Max</strong> = controls bar scale (optional). <strong>Before/After</strong> = values to compare.</p>
+                        </div>
                         {comparisons.map((c, i) => (
                             <div key={i} className='flex gap-2 mb-2 items-start flex-wrap'>
                                 <input value={c.icon} onChange={(e) => { const next = [...comparisons]; next[i] = { ...next[i], icon: e.target.value }; setComparisons(next); setSaved(false); }}
-                                    className='w-12 px-2 py-2 border border-slate-300 rounded-lg text-sm text-center' placeholder='🏛️' />
+                                    className='w-14 px-2 py-2 border border-slate-300 rounded-lg text-lg text-center' placeholder='🏛️' title='Card icon (emoji)' />
                                 <input value={c.label_hi} onChange={(e) => { const next = [...comparisons]; next[i] = { ...next[i], label_hi: e.target.value }; setComparisons(next); setSaved(false); }}
                                     className='flex-1 min-w-[100px] px-3 py-2 border border-slate-300 rounded-lg text-sm' placeholder='Label Hindi' />
                                 <input value={c.label_en} onChange={(e) => { const next = [...comparisons]; next[i] = { ...next[i], label_en: e.target.value }; setComparisons(next); setSaved(false); }}
