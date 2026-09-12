@@ -383,8 +383,8 @@ export default function ReportCard(): React.JSX.Element {
             </button>
 
             {/* ════════ HERO ════════ */}
-            <section className='relative overflow-hidden'>
-                <div className='absolute inset-0 bg-gradient-to-br from-emerald-900/80 via-teal-900/60 to-cyan-900/80' />
+            <section className='relative overflow-hidden min-h-[500px]'>
+                <div className='absolute inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-cyan-900' />
                 {/* Village background photo */}
                 {settings.village_photo_url && (
                     <div className='absolute inset-0'>
@@ -392,15 +392,15 @@ export default function ReportCard(): React.JSX.Element {
                             src={settings.village_photo_url}
                             alt='Village'
                             fill
-                            className='object-cover opacity-80'
+                            className='object-cover object-center opacity-80'
                             sizes='100vw'
                             priority
                         />
                     </div>
                 )}
-                <div className='absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/40' />
+                <div className='absolute inset-0 bg-gradient-to-b from-black/35 via-black/15 to-black/50' />
 
-                <div className='relative max-w-5xl mx-auto px-6 pt-14 pb-24 text-center text-white'>
+                <div className='relative max-w-5xl mx-auto px-4 pt-12 pb-20 text-center text-white'>
                     {/* Tenure period at top */}
                     {settings.tenure_start && settings.tenure_end && (
                         <FadeIn>
@@ -420,9 +420,9 @@ export default function ReportCard(): React.JSX.Element {
                         <p className='text-white/60 text-base'>{[block, district, state].filter(Boolean).join(' · ')}</p>
                     </FadeIn>
                     <FadeIn delay={250}>
-                        <div className='mt-8 inline-grid grid-cols-2 gap-5'>
+                        <div className='mt-6 inline-grid grid-cols-2 gap-3'>
                             {/* Gram Pradhan */}
-                            <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden text-center w-44 md:w-52'>
+                            <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden text-center w-40 md:w-52'>
                                 {settings.representative_photo_url ? (
                                     <div className='relative w-full aspect-square'>
                                         <Image src={settings.representative_photo_url} alt={repName} fill className='object-cover' sizes='220px' />
@@ -438,7 +438,7 @@ export default function ReportCard(): React.JSX.Element {
 
                             {/* Husband / Pati */}
                             {(settings.spouse_name_hi || settings.spouse_name_en) && (
-                                <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden text-center w-44 md:w-52'>
+                                <div className='bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden text-center w-40 md:w-52'>
                                     {settings.spouse_photo_url ? (
                                         <div className='relative w-full aspect-square'>
                                             <Image src={settings.spouse_photo_url} alt={lf(settings, 'spouse_name')} fill className='object-cover' sizes='220px' />
