@@ -536,31 +536,31 @@ export default function ReportCard(): React.JSX.Element {
                             const label = lang === 'hi' ? (c.label_hi || c.label_en) : (c.label_en || c.label_hi);
                             return (
                                 <FadeIn key={i} delay={i * 80}>
-                                    <div className='bg-white rounded-2xl border border-slate-100 shadow-md p-4 text-center relative overflow-hidden hover:shadow-lg transition-shadow'>
+                                    <div className='bg-white rounded-2xl border border-slate-100 shadow-md p-5 text-center relative overflow-hidden hover:shadow-lg transition-shadow'>
                                         {/* Badge */}
                                         {isNew && (
-                                            <div className='absolute top-2 right-2'>
-                                                <span className='bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm'>
+                                            <div className='absolute top-2.5 right-2.5'>
+                                                <span className='bg-emerald-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-sm'>
                                                     ✅ {t('नया', 'NEW')}
                                                 </span>
                                             </div>
                                         )}
                                         {!isNew && diff > 0 && (
-                                            <div className='absolute top-2 right-2'>
-                                                <span className='bg-emerald-100 text-emerald-700 text-[9px] font-black px-2 py-0.5 rounded-full'>
+                                            <div className='absolute top-2.5 right-2.5'>
+                                                <span className='bg-emerald-100 text-emerald-700 text-xs font-black px-3 py-1 rounded-full'>
                                                     +{diff}
                                                 </span>
                                             </div>
                                         )}
                                         {/* Icon */}
-                                        <span className='text-3xl block mb-2'>{c.icon}</span>
+                                        <span className='text-4xl block mb-2'>{c.icon}</span>
                                         {/* After number (big) */}
-                                        <p className='text-4xl font-black text-slate-900 leading-none'>{c.after_value}</p>
+                                        <p className='text-5xl md:text-6xl font-black text-slate-900 leading-none'>{c.after_value}</p>
                                         {/* Label */}
-                                        <p className='text-sm font-bold text-slate-700 mt-2 leading-tight'>{label}</p>
+                                        <p className='text-base font-bold text-slate-700 mt-3 leading-tight'>{label}</p>
                                         {/* Before context */}
                                         {!isNew && diff > 0 && (
-                                            <p className='text-[10px] text-slate-400 font-semibold mt-1.5'>
+                                            <p className='text-xs text-slate-400 font-semibold mt-2'>
                                                 {t('पहले', 'Before')}: {c.before_value} → {t('अब', 'Now')}: {c.after_value}
                                             </p>
                                         )}
