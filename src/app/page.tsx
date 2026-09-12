@@ -398,7 +398,7 @@ export default function ReportCard(): React.JSX.Element {
                         />
                     </div>
                 )}
-                <div className='absolute inset-0 bg-gradient-to-b from-emerald-900/40 via-teal-900/30 to-emerald-900/60' />
+                <div className='absolute inset-0 bg-gradient-to-b from-emerald-900/50 via-teal-900/30 to-emerald-900/60' />
 
                 <div className='relative max-w-5xl mx-auto px-6 pt-14 pb-24 text-center text-white'>
                     {/* Tenure period at top */}
@@ -513,6 +513,66 @@ export default function ReportCard(): React.JSX.Element {
                     ))}
                 </div>
             </div>
+
+            {/* ════════ BEFORE vs AFTER COMPARISON ════════ */}
+            {settings.comparisons && settings.comparisons.length > 0 && (
+                <div id='sec-compare' className='max-w-5xl mx-auto px-6 mb-6 scroll-mt-16'>
+                    <FadeIn>
+                        <h3 className='text-xl font-bold text-slate-800 text-center mb-1'>
+                            📊 {t('पहले और अब', 'Then vs Now')}
+                        </h3>
+                        <p className='text-xs text-slate-400 text-center mb-4'>
+                            {t('2022 से पहले और आज की तुलना', 'Comparison before 2022 and today')}
+                        </p>
+                    </FadeIn>
+                    <div className='bg-white rounded-2xl border border-slate-100 shadow-sm p-4'>
+                        <div className='flex gap-4 text-[11px] font-bold mb-4 justify-center'>
+                            <span className='flex items-center gap-1.5'><span className='w-3 h-3 rounded-sm bg-red-400 inline-block' /> {t('पहले', 'Before')}</span>
+                            <span className='flex items-center gap-1.5'><span className='w-3 h-3 rounded-sm bg-emerald-500 inline-block' /> {t('अब', 'Now')}</span>
+                        </div>
+                        <div className='space-y-4'>
+                            {settings.comparisons.map((c, i) => {
+                                const beforeNum = parseFloat(c.before_value) || 0;
+                                const afterNum = parseFloat(c.after_value) || 0;
+                                const globalMax = Math.max(...settings.comparisons.map((x) => Math.max(parseFloat(x.before_value) || 0, parseFloat(x.after_value) || 0)), 1);
+                                const beforeW = Math.max((beforeNum / globalMax) * 100, 4);
+                                const afterW = Math.max((afterNum / globalMax) * 100, 4);
+                                const label = lang === 'hi' ? (c.label_hi || c.label_en) : (c.label_en || c.label_hi);
+                                return (
+                                    <FadeIn key={i} delay={i * 80}>
+                                        <div>
+                                            <div className='flex items-center gap-2 mb-1.5'>
+                                                <span className='text-lg'>{c.icon}</span>
+                                                <span className='text-sm font-bold text-slate-700'>{label}</span>
+                                            </div>
+                                            {/* Before bar */}
+                                            <div className='flex items-center gap-2 mb-1'>
+                                                <span className='text-[10px] text-slate-400 font-semibold w-8 text-right'>{t('पहले', 'Before')}</span>
+                                                <div className='flex-1 bg-red-50 rounded-full h-5 overflow-hidden'>
+                                                    <div className='h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
+                                                        style={{ width: `${beforeW}%`, minWidth: '28px' }}>
+                                                        <span className='text-white text-[10px] font-black'>{c.before_value}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {/* After bar */}
+                                            <div className='flex items-center gap-2'>
+                                                <span className='text-[10px] text-slate-400 font-semibold w-8 text-right'>{t('अब', 'Now')}</span>
+                                                <div className='flex-1 bg-emerald-50 rounded-full h-5 overflow-hidden'>
+                                                    <div className='h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
+                                                        style={{ width: `${afterW}%`, minWidth: '28px' }}>
+                                                        <span className='text-white text-[10px] font-black'>{c.after_value}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </FadeIn>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Category Chips */}
             <div className='max-w-5xl mx-auto px-6 mb-10'>
@@ -750,63 +810,6 @@ export default function ReportCard(): React.JSX.Element {
                                         </div>
                                     </div>
                                 </FadeIn>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
-
-            {/* ════════ BEFORE vs AFTER COMPARISON ════════ */}
-            {settings.comparisons && settings.comparisons.length > 0 && (
-                <div id='sec-compare' className='max-w-5xl mx-auto px-6 mb-8 scroll-mt-16'>
-                    <FadeIn>
-                        <h2 className='text-xl font-black text-slate-900 text-center mb-0.5'>
-                            📊 {t('पहले और अब', 'Then vs Now')}
-                        </h2>
-                        <p className='text-xs text-slate-500 text-center mb-4'>
-                            {t('2022 से पहले और आज की तुलना', 'Comparison before 2022 and today')}
-                        </p>
-                    </FadeIn>
-                    <div className='bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-4'>
-                        {settings.comparisons.map((c, i) => {
-                            const beforeNum = parseFloat(c.before_value) || 0;
-                            const afterNum = parseFloat(c.after_value) || 0;
-                            const globalMax = Math.max(...settings.comparisons.map((x) => Math.max(parseFloat(x.before_value) || 0, parseFloat(x.after_value) || 0)), 1);
-                            const beforeW = Math.max((beforeNum / globalMax) * 100, 4);
-                            const afterW = Math.max((afterNum / globalMax) * 100, 4);
-                            const label = lang === 'hi' ? (c.label_hi || c.label_en) : (c.label_en || c.label_hi);
-                            return (
-                                <div key={i} className='space-y-1.5'>
-                                    <p className='text-sm font-bold text-slate-800'>
-                                        {c.icon} {label}
-                                    </p>
-                                    {/* Before bar */}
-                                    <div className='flex items-center gap-2'>
-                                        <span className='text-[11px] font-semibold text-red-500 w-10 shrink-0'>
-                                            {t('पहले', 'Before')}
-                                        </span>
-                                        <div className='flex-1 bg-red-50 rounded-full h-5 overflow-hidden'>
-                                            <div
-                                                className='h-full bg-gradient-to-r from-red-500 to-red-400 rounded-full transition-all duration-700 flex items-center justify-end pr-2'
-                                                style={{ width: `${beforeW}%`, minWidth: '28px' }}>
-                                                <span className='text-[11px] font-black text-white'>{c.before_value}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* After bar */}
-                                    <div className='flex items-center gap-2'>
-                                        <span className='text-[11px] font-semibold text-emerald-600 w-10 shrink-0'>
-                                            {t('अब', 'Now')}
-                                        </span>
-                                        <div className='flex-1 bg-emerald-50 rounded-full h-5 overflow-hidden'>
-                                            <div
-                                                className='h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-700 flex items-center justify-end pr-2'
-                                                style={{ width: `${afterW}%`, minWidth: '28px' }}>
-                                                <span className='text-[11px] font-black text-white'>{c.after_value}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
                             );
                         })}
                     </div>
