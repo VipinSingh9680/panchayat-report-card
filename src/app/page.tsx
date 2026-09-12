@@ -384,7 +384,7 @@ export default function ReportCard(): React.JSX.Element {
 
             {/* ════════ HERO ════════ */}
             <section className='relative overflow-hidden'>
-                <div className='absolute inset-0 bg-gradient-to-br from-emerald-800 via-teal-800 to-cyan-900' />
+                <div className='absolute inset-0 bg-gradient-to-br from-emerald-900/80 via-teal-900/60 to-cyan-900/80' />
                 {/* Village background photo */}
                 {settings.village_photo_url && (
                     <div className='absolute inset-0'>
@@ -392,13 +392,13 @@ export default function ReportCard(): React.JSX.Element {
                             src={settings.village_photo_url}
                             alt='Village'
                             fill
-                            className='object-cover opacity-[0.65]'
+                            className='object-cover opacity-80'
                             sizes='100vw'
                             priority
                         />
                     </div>
                 )}
-                <div className='absolute inset-0 bg-gradient-to-b from-emerald-900/40 via-teal-900/20 to-emerald-900/50' />
+                <div className='absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/40' />
 
                 <div className='relative max-w-5xl mx-auto px-6 pt-14 pb-24 text-center text-white'>
                     {/* Tenure period at top */}
