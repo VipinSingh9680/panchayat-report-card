@@ -17,7 +17,7 @@ import { isSupabaseConfigured, fetchAllData } from './supabase-data';
 import type { AllData } from './supabase-data';
 
 const fetchCachedData = async (): Promise<AllData> => {
-    const res = await fetch('/api/public-data', { next: { revalidate: 300 } });
+    const res = await fetch('/api/public-data', { cache: 'no-store' });
     if (!res.ok) throw new Error('Cache API failed');
     return res.json() as Promise<AllData>;
 };

@@ -488,6 +488,7 @@ export default function ReportCard(): React.JSX.Element {
             </div>
 
             {/* ════════ Welfare Distribution Stats ════════ */}
+            {welfareStats.length > 0 && (
             <div id='sec-welfare' className='max-w-5xl mx-auto px-6 mb-6 scroll-mt-16'>
                 <FadeIn>
                     <h3 className='text-xl font-bold text-slate-800 text-center mb-4'>
@@ -513,6 +514,7 @@ export default function ReportCard(): React.JSX.Element {
                     ))}
                 </div>
             </div>
+            )}
 
             {/* ════════ BEFORE vs AFTER COMPARISON ════════ */}
             {settings.comparisons && settings.comparisons.length > 0 && (

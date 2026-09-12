@@ -6,7 +6,7 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-export const revalidate = 300;
+export const revalidate = 60;
 
 export async function GET(): Promise<NextResponse> {
     try {
@@ -28,7 +28,7 @@ export async function GET(): Promise<NextResponse> {
 
         return NextResponse.json(data, {
             headers: {
-                'Cache-Control': 's-maxage=300, stale-while-revalidate=600',
+                'Cache-Control': 's-maxage=60, stale-while-revalidate=120',
             },
         });
     } catch {
