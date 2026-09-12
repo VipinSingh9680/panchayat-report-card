@@ -518,73 +518,60 @@ export default function ReportCard(): React.JSX.Element {
 
             {/* ════════ BEFORE vs AFTER COMPARISON ════════ */}
             {settings.comparisons && settings.comparisons.length > 0 && (
-                <div id='sec-compare' className='max-w-md mx-auto px-6 mb-6 scroll-mt-16'>
+                <div id='sec-compare' className='max-w-5xl mx-auto px-6 mb-8 scroll-mt-16'>
                     <FadeIn>
                         <h3 className='text-xl font-bold text-slate-800 text-center mb-1'>
-                            📊 {t('पहले और अब', 'Then vs Now')}
+                            🏆 {t('विकास की उपलब्धियाँ', 'Development Achievements')}
                         </h3>
                         <p className='text-xs text-slate-400 text-center mb-4'>
-                            {t('2022 से पहले और आज की तुलना', 'Comparison before 2022 and today')}
+                            {t('कार्यकाल में किए गए प्रमुख कार्य', 'Key work done during tenure')}
                         </p>
                     </FadeIn>
-                    <div className='bg-white rounded-2xl border border-slate-100 shadow-sm p-4'>
-                        <div className='flex gap-4 text-[11px] font-bold mb-4 justify-center'>
-                            <span className='flex items-center gap-1.5'><span className='w-3 h-3 rounded-sm bg-emerald-500 inline-block' /> {t('अब', 'Now')}</span>
-                            <span className='flex items-center gap-1.5'><span className='w-3 h-3 rounded-sm bg-red-400 inline-block' /> {t('पहले', 'Before')}</span>
-                        </div>
-                        <div className='space-y-4'>
-                            {settings.comparisons.map((c, i) => {
-                                const beforeNum = parseFloat(c.before_value) || 0;
-                                const afterNum = parseFloat(c.after_value) || 0;
-                                const customMax = parseFloat(c.max_value) || 0;
-                                const itemMax = customMax > 0 ? customMax : Math.max(beforeNum, afterNum, 1);
-                                const beforeW = beforeNum === 0 ? 0 : Math.max((beforeNum / itemMax) * 100, 8);
-                                const afterW = afterNum === 0 ? 0 : Math.max((afterNum / itemMax) * 100, 8);
-                                const label = lang === 'hi' ? (c.label_hi || c.label_en) : (c.label_en || c.label_hi);
-                                return (
-                                    <FadeIn key={i} delay={i * 80}>
-                                        <div>
-                                            <div className='flex items-center gap-2 mb-1.5'>
-                                                <span className='text-lg'>{c.icon}</span>
-                                                <span className='text-sm font-bold text-slate-700'>{label}</span>
+                    <div className='grid grid-cols-2 md:grid-cols-3 gap-3'>
+                        {settings.comparisons.map((c, i) => {
+                            const beforeNum = parseFloat(c.before_value) || 0;
+                            const afterNum = parseFloat(c.after_value) || 0;
+                            const diff = afterNum - beforeNum;
+                            const isNew = beforeNum === 0 && afterNum > 0;
+                            const label = lang === 'hi' ? (c.label_hi || c.label_en) : (c.label_en || c.label_hi);
+                            return (
+                                <FadeIn key={i} delay={i * 80}>
+                                    <div className='bg-white rounded-2xl border border-slate-100 shadow-md p-4 text-center relative overflow-hidden hover:shadow-lg transition-shadow'>
+                                        {/* Badge */}
+                                        {isNew && (
+                                            <div className='absolute top-2 right-2'>
+                                                <span className='bg-amber-400 text-amber-900 text-[9px] font-black px-2 py-0.5 rounded-full'>
+                                                    🆕 {t('नया', 'NEW')}
+                                                </span>
                                             </div>
-                                            {/* After bar (now) — shown first */}
-                                            <div className='flex items-center gap-2 mb-1'>
-                                                <span className='text-[10px] text-slate-400 font-semibold w-8 text-right'>{t('अब', 'Now')}</span>
-                                                {afterNum === 0 ? (
-                                                    <div className='flex-1 flex items-center'>
-                                                        <span className='text-[11px] font-black text-emerald-600 ml-1'>0</span>
-                                                    </div>
-                                                ) : (
-                                                    <div className='flex-1 bg-emerald-50 rounded-full h-6 overflow-hidden'>
-                                                        <div className='h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
-                                                            style={{ width: `${afterW}%`, minWidth: '32px' }}>
-                                                            <span className='text-white text-[11px] font-black'>{c.after_value}</span>
-                                                        </div>
-                                                    </div>
-                                                )}
+                                        )}
+                                        {!isNew && diff > 0 && (
+                                            <div className='absolute top-2 right-2'>
+                                                <span className='bg-emerald-100 text-emerald-700 text-[9px] font-black px-2 py-0.5 rounded-full'>
+                                                    +{diff}
+                                                </span>
                                             </div>
-                                            {/* Before bar — shown below */}
-                                            <div className='flex items-center gap-2'>
-                                                <span className='text-[10px] text-slate-400 font-semibold w-8 text-right'>{t('पहले', 'Before')}</span>
-                                                {beforeNum === 0 ? (
-                                                    <div className='flex-1 flex items-center'>
-                                                        <span className='text-[11px] font-black text-red-500 ml-1'>0</span>
-                                                    </div>
-                                                ) : (
-                                                    <div className='flex-1 bg-red-50 rounded-full h-6 overflow-hidden'>
-                                                        <div className='h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
-                                                            style={{ width: `${beforeW}%`, minWidth: '32px' }}>
-                                                            <span className='text-white text-[11px] font-black'>{c.before_value}</span>
-                                                        </div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </FadeIn>
-                                );
-                            })}
-                        </div>
+                                        )}
+                                        {/* Icon */}
+                                        <span className='text-3xl block mb-2'>{c.icon}</span>
+                                        {/* After number (big) */}
+                                        <p className='text-4xl font-black text-slate-900 leading-none'>{c.after_value}</p>
+                                        {/* Label */}
+                                        <p className='text-sm font-bold text-slate-700 mt-2 leading-tight'>{label}</p>
+                                        {/* Before context */}
+                                        {isNew ? (
+                                            <p className='text-[10px] text-emerald-600 font-semibold mt-1.5 bg-emerald-50 rounded-full px-2 py-0.5 inline-block'>
+                                                ✅ {t('पहले नहीं था', 'Didn\'t exist before')}
+                                            </p>
+                                        ) : (
+                                            <p className='text-[10px] text-slate-400 font-semibold mt-1.5'>
+                                                {t('पहले', 'Before')}: {c.before_value} → {t('अब', 'Now')}: {c.after_value}
+                                            </p>
+                                        )}
+                                    </div>
+                                </FadeIn>
+                            );
+                        })}
                     </div>
                 </div>
             )}
