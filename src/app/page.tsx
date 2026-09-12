@@ -529,8 +529,8 @@ export default function ReportCard(): React.JSX.Element {
                     </FadeIn>
                     <div className='bg-white rounded-2xl border border-slate-100 shadow-sm p-4'>
                         <div className='flex gap-4 text-[11px] font-bold mb-4 justify-center'>
-                            <span className='flex items-center gap-1.5'><span className='w-3 h-3 rounded-sm bg-red-400 inline-block' /> {t('पहले', 'Before')}</span>
                             <span className='flex items-center gap-1.5'><span className='w-3 h-3 rounded-sm bg-emerald-500 inline-block' /> {t('अब', 'Now')}</span>
+                            <span className='flex items-center gap-1.5'><span className='w-3 h-3 rounded-sm bg-red-400 inline-block' /> {t('पहले', 'Before')}</span>
                         </div>
                         <div className='space-y-4'>
                             {settings.comparisons.map((c, i) => {
@@ -547,23 +547,23 @@ export default function ReportCard(): React.JSX.Element {
                                                 <span className='text-lg'>{c.icon}</span>
                                                 <span className='text-sm font-bold text-slate-700'>{label}</span>
                                             </div>
-                                            {/* Before bar */}
+                                            {/* After bar (now) — shown first */}
                                             <div className='flex items-center gap-2 mb-1'>
-                                                <span className='text-[10px] text-slate-400 font-semibold w-8 text-right'>{t('पहले', 'Before')}</span>
-                                                <div className='flex-1 bg-red-50 rounded-full h-5 overflow-hidden'>
-                                                    <div className='h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
-                                                        style={{ width: `${beforeW}%`, minWidth: '28px' }}>
-                                                        <span className='text-white text-[10px] font-black'>{c.before_value}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            {/* After bar */}
-                                            <div className='flex items-center gap-2'>
                                                 <span className='text-[10px] text-slate-400 font-semibold w-8 text-right'>{t('अब', 'Now')}</span>
                                                 <div className='flex-1 bg-emerald-50 rounded-full h-5 overflow-hidden'>
                                                     <div className='h-full bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
                                                         style={{ width: `${afterW}%`, minWidth: '28px' }}>
                                                         <span className='text-white text-[10px] font-black'>{c.after_value}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {/* Before bar — shown below */}
+                                            <div className='flex items-center gap-2'>
+                                                <span className='text-[10px] text-slate-400 font-semibold w-8 text-right'>{t('पहले', 'Before')}</span>
+                                                <div className='flex-1 bg-red-50 rounded-full h-5 overflow-hidden'>
+                                                    <div className='h-full bg-gradient-to-r from-red-400 to-red-500 rounded-full flex items-center justify-end pr-2 transition-all duration-700'
+                                                        style={{ width: `${beforeW}%`, minWidth: '28px' }}>
+                                                        <span className='text-white text-[10px] font-black'>{c.before_value}</span>
                                                     </div>
                                                 </div>
                                             </div>
